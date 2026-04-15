@@ -1,0 +1,54 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+@import "tailwindcss";
+
+* {
+  font-family: "Inter", sans-serif;
+  box-sizing: border-box;
+}
+
+/* ─── Light Theme ─── */
+:root {
+  --bg-color: #f8fafc;
+  --text-color: #111827;
+  --text-secondary: #6b7280;
+  --card-bg: #ffffff;
+  --border-color: #e5e7eb;
+  --hover-bg: #f9fafb;
+  --error-color: #ef4444;
+}
+
+/* ─── Dark Theme ─── */
+.dark-theme {
+  --bg-color: #111827;
+  --text-color: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --card-bg: #1f2937;
+  --border-color: #374151;
+  --hover-bg: #374151;
+  --error-color: #f87171;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  /* Prevent horizontal overflow on mobile */
+  overflow-x: hidden;
+}
+
+/* ─── Touch-friendly tap targets ─── */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ─── Smooth scrolling ─── */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ─── Image fluid by default ─── */
+img {
+  max-width: 100%;
+  height: auto;
+}
