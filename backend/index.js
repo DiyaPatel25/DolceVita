@@ -8,6 +8,7 @@ import categoryRoutes from "./routes/categoryRoutes.js";
 import menuRoutes from "./routes/menuRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
+import connectCloudinary from "./config/cloudinary.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -15,6 +16,7 @@ const app = express();
 
 // Database connection
 connectDB();
+connectCloudinary();
 
 
 

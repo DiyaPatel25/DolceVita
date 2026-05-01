@@ -150,6 +150,7 @@ const AppContextProvider = ({ children }) => {
     addToCart,
     cartCount,
     cart,
+    setCart,
     totalPrice,
     fetchCartData,
     theme,

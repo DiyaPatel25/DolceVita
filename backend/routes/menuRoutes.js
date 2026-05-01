@@ -6,8 +6,8 @@ import { addMenuItem, deleteMenuItem, getAllMenuItems, updateMenuItem } from "..
 
 const menuRoutes=express.Router();
 
-menuRoutes.post("/add",adminOnly,addMenuItem)
-menuRoutes.put("/update/:id",adminOnly,updateMenuItem)
+menuRoutes.post("/add",adminOnly,upload.single("image"),addMenuItem)
+menuRoutes.put("/update/:id",adminOnly,upload.single("image"),updateMenuItem)
 menuRoutes.delete("/delete/:id",adminOnly,deleteMenuItem)
 menuRoutes.get("/all",getAllMenuItems)
 

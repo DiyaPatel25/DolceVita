@@ -6,10 +6,19 @@ import { isMongoDBConnected } from "../config/db.js";
 const menuDB = new DataAccess('Menu');
 const categoryDB = new DataAccess('Category');
 
+const uploadImageToCloudinary = async (filePath) => {
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder: "restaurant",
+  });
+  return result.secure_url;
+};
+
 export const addMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, image } = req.body;
-    if (!name || !description || !price || !category || !image) {
+    const uploadedImage = req.file ? await uploadImageToCloudinary(req.file.path) : image;
+
+    if (!name || !description || !price || !category || !uploadedImage) {
       return res
         .status(400)
         .json({ message: "All fields are required", success: false });
@@ -20,7 +29,7 @@ export const addMenuItem = async (req, res) => {
       description,
       price,
       category,
-      image,
+      image: uploadedImage,
       isAvailable: true
     });
     res.status(201).json({
@@ -82,7 +91,9 @@ export const updateMenuItem = async (req, res) => {
         .json({ message: "Menu item not found", success: false });
 
     const updateData = {};
-    if (image) {
+    if (req.file) {
+      updateData.image = await uploadImageToCloudinary(req.file.path);
+    } else if (image) {
       updateData.image = image;
     }
     if (name) updateData.name = name;

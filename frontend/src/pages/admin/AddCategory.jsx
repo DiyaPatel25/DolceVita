@@ -1,19 +1,43 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-hot-toast";
 import { Tag, Image, Plus } from "lucide-react";
 
 const AddCategory = () => {
   const { axios, navigate, loading, setLoading, fetchCategories } = useContext(AppContext);
-  const [formData, setFormData] = useState({ name: "", image: "" });
+  const [formData, setFormData] = useState({ name: "", imageUrl: "" });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    if (imageFile) {
+      const objectUrl = URL.createObjectURL(imageFile);
+      setImagePreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+
+    setImagePreview(formData.imageUrl);
+  }, [imageFile, formData.imageUrl]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const { data } = await axios.post("/api/category/add", formData);
+      const payload = imageFile ? (() => {
+        const data = new FormData();
+        data.append("name", formData.name);
+        data.append("image", imageFile);
+        return data;
+      })() : { name: formData.name, image: formData.imageUrl };
+
+      const { data } = await axios.post("/api/category/add", payload);
       if (data.success) {
         toast.success(data.message);
         await fetchCategories();
@@ -56,25 +80,37 @@ const AddCategory = () => {
 
           {/* Image URL */}
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
             <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-orange-400 focus-within:bg-white transition-all duration-200">
               <Image className="w-4 h-4 text-gray-400 shrink-0" />
               <input
                 type="text"
-                name="image"
-                value={formData.image}
+                name="imageUrl"
+                value={formData.imageUrl}
                 onChange={handleChange}
-                required
                 placeholder="https://..."
                 className="bg-transparent outline-none text-sm w-full text-gray-700 placeholder-gray-400"
               />
             </div>
           </div>
 
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Or upload from device</label>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-orange-400 focus-within:bg-white transition-all duration-200">
+              <Image className="w-4 h-4 text-gray-400 shrink-0" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="bg-transparent outline-none text-sm w-full text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-orange-700 hover:file:bg-orange-100"
+              />
+            </div>
+          </div>
+
           {/* Image Preview */}
-          {formData.image && (
+          {imagePreview && (
             <div className="rounded-xl overflow-hidden border border-gray-200">
-              <img src={formData.image} alt="Preview" className="w-full h-40 object-cover" onError={(e) => e.target.style.display = 'none'} />
+              <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover" onError={(e) => e.target.style.display = 'none'} />
             </div>
           )}
 

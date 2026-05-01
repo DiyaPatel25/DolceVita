@@ -2,6 +2,7 @@ import DataAccess from "../config/dataAccess.js";
 import { isMongoDBConnected } from "../config/db.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 // Initialize data access for Order, Cart, Menu, and User
 const orderDB = new DataAccess('Order');
@@ -11,7 +12,7 @@ const userDB = new DataAccess('User');
 
 export const placeOrder = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [] } = req.body;
 
     let userId = null;
     const token = req.cookies && req.cookies.token;
@@ -41,11 +42,41 @@ export const placeOrder = async (req, res) => {
         return res.status(400).json({ message: "Email already registered. Please login.", success: false });
       }
     } else if (!userId) {
-      return res.status(401).json({ message: "Please provide a password to sign up, or login first.", success: false });
+      const guestName = name?.trim() || "Guest Customer";
+      const guestEmailSeed = (req.cookies && req.cookies.guestId) || new mongoose.Types.ObjectId().toString();
+      const guestEmail = `guest_${guestEmailSeed}@guest.local`;
+      const guestPassword = await bcrypt.hash(guestEmailSeed, 10);
+
+      let guestUser = await userDB.findOne({ email: guestEmail });
+      if (!guestUser) {
+        guestUser = await userDB.create({
+          name: guestName,
+          email: guestEmail,
+          password: guestPassword,
+          isAdmin: false,
+        });
+      }
+
+      userId = guestUser._id;
     }
 
-    const guestId = req.cookies && req.cookies.guestId;
-    const searchId = (!token && guestId) ? guestId : userId;
+    const normalizedOrderType = orderType === "Delivery" ? "Delivery" : "Pickup";
+    const normalizedPaymentMethod = paymentMethod === "Online Payment" ? "Online Payment" : "Pay at Counter";
+
+    if (normalizedOrderType === "Delivery" && normalizedPaymentMethod !== "Online Payment") {
+      return res.status(400).json({
+        success: false,
+        message: "Delivery orders must be paid online. Counter payment is only available for pickup.",
+      });
+    }
+
+    const finalAddress = normalizedOrderType === "Delivery" ? address?.trim() : "Pickup";
+    if (normalizedOrderType === "Delivery" && !finalAddress) {
+      return res.status(400).json({ success: false, message: "Delivery address is required." });
+    }
+
+      const guestId = req.cookies && req.cookies.guestId;
+      const searchId = token ? userId : (guestId || userId);
     
     let cart = await cartDB.findOne({ user: searchId });
 
@@ -63,28 +94,46 @@ export const placeOrder = async (req, res) => {
       }
     }
 
-    if (!cart || cart.items.length === 0)
+    if ((!cart || cart.items.length === 0) && (!Array.isArray(cartItems) || cartItems.length === 0)) {
       return res.status(400).json({ message: "Your cart is empty" });
+    }
 
-    const totalAmount = cart.items.reduce(
+    const resolvedItems = (cart && cart.items.length > 0)
+      ? cart.items
+      : await Promise.all(
+          cartItems.map(async (item) => ({
+            menuItem: await menuDB.findById(item.menuItem),
+            quantity: item.quantity,
+          }))
+        );
+
+    if (resolvedItems.some((item) => !item.menuItem)) {
+      return res.status(400).json({ message: "One or more cart items could not be found", success: false });
+    }
+
+    const orderTotalAmount = resolvedItems.reduce(
       (sum, item) => sum + item.menuItem.price * item.quantity,
       0
     );
 
     const newOrder = await orderDB.create({
       user: userId,
-      items: cart.items.map((i) => ({
+      items: resolvedItems.map((i) => ({
         menuItem: i.menuItem._id,
         quantity: i.quantity,
       })),
-      totalAmount,
-      address: "Pickup",
-      paymentMethod: "Pay at pickup",
+      totalAmount: orderTotalAmount,
+      orderType: normalizedOrderType,
+      address: finalAddress,
+      paymentMethod: normalizedPaymentMethod,
+      paymentStatus: normalizedPaymentMethod === "Online Payment" ? "Paid" : "Pending",
       status: "Pending",
     });
 
     // Clear cart
-    await cartDB.findByIdAndUpdate(cart._id, { items: [] });
+    if (cart?._id) {
+      await cartDB.findByIdAndUpdate(cart._id, { items: [] });
+    }
 
     res.status(201).json({
       success: true,

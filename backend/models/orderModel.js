@@ -22,6 +22,11 @@ const orderSchema=new mongoose.Schema({
       type: Number,
       required: true,
     },
+    orderType: {
+      type: String,
+      enum: ["Pickup", "Delivery"],
+      default: "Pickup",
+    },
     address: {
       type: String,
       required: true,
@@ -33,7 +38,12 @@ const orderSchema=new mongoose.Schema({
     },
      paymentMethod: {
       type: String,
-      default: "Cash on Delivery",
+      default: "Pay at Counter",
+    },
+    paymentStatus: {
+      type: String,
+      enum: ["Pending", "Paid"],
+      default: "Pending",
     },
 },{timestamps:true});
 

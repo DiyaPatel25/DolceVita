@@ -1,13 +1,23 @@
 import DataAccess from "../config/dataAccess.js";
+import { v2 as cloudinary } from "cloudinary";
 
 
 // Initialize data access for Category
 const categoryDB = new DataAccess('Category');
 
+const uploadImageToCloudinary = async (filePath) => {
+  const result = await cloudinary.uploader.upload(filePath, {
+    folder: "restaurant",
+  });
+  return result.secure_url;
+};
+
 export const addCategory = async (req, res) => {
   try {
     const { name, image } = req.body;
-    if (!name || !image) {
+    const uploadedImage = req.file ? await uploadImageToCloudinary(req.file.path) : image;
+
+    if (!name || !uploadedImage) {
       return res
         .status(400)
         .json({ message: "Name and image are required", success: false });
@@ -22,7 +32,7 @@ export const addCategory = async (req, res) => {
 
     const newCategory = await categoryDB.create({
       name,
-      image,
+      image: uploadedImage,
     });
     res.status(201).json({
       message: "Category added",
@@ -61,7 +71,11 @@ export const updateCategory = async (req, res) => {
     }
     
     const updateData = {};
-    if (image) updateData.image = image;
+    if (req.file) {
+      updateData.image = await uploadImageToCloudinary(req.file.path);
+    } else if (image) {
+      updateData.image = image;
+    }
     if (name) updateData.name = name;
     
     const updatedCategory = await categoryDB.findByIdAndUpdate(id, updateData);

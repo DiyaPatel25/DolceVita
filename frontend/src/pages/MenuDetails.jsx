@@ -1,12 +1,30 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../context/AppContext";
-import { ArrowLeft, CheckCircle, ShoppingCart, XCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Minus, Plus, ShoppingCart, Trash2, XCircle } from "lucide-react";
 const MenuDetails = () => {
   const { id } = useParams();
-  const { menus, navigate, addToCart } = useContext(AppContext);
-  const [quantity, setQuantity] = useState(1);
+  const { menus, navigate, addToCart, cart, axios, fetchCartData } = useContext(AppContext);
   const menu = menus.find((item) => item._id === id);
+
+  const cartItem = cart?.items?.find(
+    (item) => item.menuItem?._id === id || item.menuItem === id
+  );
+  const quantity = cartItem?.quantity || 0;
+
+  const removeOne = async () => {
+    if (quantity <= 1) {
+      await axios.delete(`/api/cart/remove/${id}`);
+    } else {
+      await axios.post("/api/cart/add", { menuId: id, quantity: -1 });
+    }
+    fetchCartData();
+  };
+
+  const removeFromCart = async () => {
+    await axios.delete(`/api/cart/remove/${id}`);
+    fetchCartData();
+  };
 
   if (!menu) {
     return (
@@ -97,26 +115,55 @@ const MenuDetails = () => {
                 {menu.description}
               </p>
             </div>
-            {/* Total and Add to Cart */}
+            {/* Cart Controls */}
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-6 shadow-xl">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-white text-lg font-semibold">
-                  Total Amount
-                </span>
-                <span className="text-white text-3xl font-bold">₹20</span>
-              </div>
-
-              <button
-                disabled={!menu.isAvailable}
-                onClick={() => addToCart(menu._id)}
-                className={` cursor-pointer w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${menu.isAvailable
+              {quantity === 0 ? (
+                <button
+                  disabled={!menu.isAvailable}
+                  onClick={() => addToCart(menu._id)}
+                  className={`cursor-pointer w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${menu.isAvailable
                     ? "bg-white text-yellow-600 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-lg"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
-              >
-                <ShoppingCart className="w-6 h-6" />
-                {menu.isAvailable ? "Add to Cart" : "Available"}
-              </button>
+                    }`}
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                  {menu.isAvailable ? "Add to Cart" : "Unavailable"}
+                </button>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-center text-white font-semibold">
+                    In cart: {quantity} {quantity === 1 ? "item" : "items"}
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={removeOne}
+                      className="w-12 h-12 rounded-full bg-white/90 text-yellow-600 hover:bg-white flex items-center justify-center transition-all"
+                    >
+                      <Minus className="w-5 h-5" />
+                    </button>
+                    <span className="text-white text-2xl font-bold w-10 text-center">
+                      {quantity}
+                    </span>
+                    <button
+                      disabled={!menu.isAvailable}
+                      onClick={() => addToCart(menu._id)}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${menu.isAvailable
+                        ? "bg-white text-yellow-600 hover:bg-gray-50"
+                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        }`}
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <button
+                    onClick={removeFromCart}
+                    className="w-full py-3 rounded-xl font-semibold bg-white/90 text-red-600 hover:bg-white transition-all flex items-center justify-center gap-2"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                    Remove from Cart
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

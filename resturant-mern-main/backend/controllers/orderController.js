@@ -1,5 +1,7 @@
 import DataAccess from "../config/dataAccess.js";
 import { isMongoDBConnected } from "../config/db.js";
+import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 
 // Initialize data access for Order, Cart, Menu, and User
 const orderDB = new DataAccess('Order');
@@ -9,19 +11,49 @@ const userDB = new DataAccess('User');
 
 export const placeOrder = async (req, res) => {
   try {
-    const { id } = req.user;
-    const { address, paymentMethod } = req.body;
+    const { address, paymentMethod, name, email, password, cartItems = [] } = req.body;
+
+    let userId = req.user?.id || null;
+
+    if (!userId && password && name && email) {
+      const existingUser = await userDB.findOne({ email });
+      if (!existingUser) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await userDB.create({ name, email, password: hashedPassword });
+        userId = user._id;
+      } else {
+        return res.status(400).json({ message: "Email already registered. Please login.", success: false });
+      }
+    } else if (!userId) {
+      const guestName = "Guest Customer";
+      const guestEmailSeed = (req.cookies && req.cookies.guestId) || new mongoose.Types.ObjectId().toString();
+      const guestEmail = `guest_${guestEmailSeed}@guest.local`;
+      const guestPassword = await bcrypt.hash(guestEmailSeed, 10);
+
+      let guestUser = await userDB.findOne({ email: guestEmail });
+      if (!guestUser) {
+        guestUser = await userDB.create({
+          name: guestName,
+          email: guestEmail,
+          password: guestPassword,
+          isAdmin: false,
+        });
+      }
+
+      userId = guestUser._id;
+    }
+
     if (!address)
       return res
         .status(400)
         .json({ message: "Delivery address is required", success: false });
 
-    let cart = await cartDB.findOne({ user: id });
+    let cart = await cartDB.findOne({ user: userId });
 
     // Handle population based on storage type
     if (isMongoDBConnected()) {
       const Cart = (await import("../models/cartModel.js")).default;
-      cart = await Cart.findOne({ user: id }).populate("items.menuItem");
+      cart = await Cart.findOne({ user: userId }).populate("items.menuItem");
     } else {
       // Manual population for local storage
       if (cart && cart.items) {
@@ -32,17 +64,30 @@ export const placeOrder = async (req, res) => {
       }
     }
 
-    if (!cart || cart.items.length === 0)
+    if ((!cart || cart.items.length === 0) && (!Array.isArray(cartItems) || cartItems.length === 0))
       return res.status(400).json({ message: "Your cart is empty" });
 
-    const totalAmount = cart.items.reduce(
+    const resolvedItems = (cart && cart.items.length > 0)
+      ? cart.items
+      : await Promise.all(
+          cartItems.map(async (item) => ({
+            menuItem: await menuDB.findById(item.menuItem),
+            quantity: item.quantity,
+          }))
+        );
+
+    if (resolvedItems.some((item) => !item.menuItem)) {
+      return res.status(400).json({ message: "One or more cart items could not be found", success: false });
+    }
+
+    const totalAmount = resolvedItems.reduce(
       (sum, item) => sum + item.menuItem.price * item.quantity,
       0
     );
 
     const newOrder = await orderDB.create({
-      user: id,
-      items: cart.items.map((i) => ({
+      user: userId,
+      items: resolvedItems.map((i) => ({
         menuItem: i.menuItem._id,
         quantity: i.quantity,
       })),
@@ -52,7 +97,9 @@ export const placeOrder = async (req, res) => {
     });
 
     // Clear cart
-    await cartDB.findByIdAndUpdate(cart._id, { items: [] });
+    if (cart?._id) {
+      await cartDB.findByIdAndUpdate(cart._id, { items: [] });
+    }
 
     res.status(201).json({
       success: true,
@@ -86,8 +133,8 @@ export const getAllOrders = async (req, res) => {
   try {
     let orders = await orderDB.find();
 
-    // Handle population based on storage type
-    if (isMongoDBConnected()) {
+          const guestId = req.cookies && req.cookies.guestId;
+          const searchId = token ? userId : (guestId || userId);
       const Order = (await import("../models/orderModel.js")).default;
       orders = await Order.find()
         .populate("user")

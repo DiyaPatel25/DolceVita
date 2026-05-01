@@ -78,7 +78,7 @@ const Orders = () => {
         <div className="space-y-4">
           {orders.map((order) => {
             const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG["Pending"];
-            const isPaid = order.status === "Delivered";
+            const isPaid = order.paymentStatus === "Paid" || order.paymentMethod === "Online Payment";
 
             return (
               <div key={order._id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -134,7 +134,7 @@ const Orders = () => {
                 {/* Footer — total */}
                 <div className={`px-5 py-3 flex items-center justify-between border-t ${isPaid ? 'bg-green-50' : 'bg-orange-50'}`}>
                   <p className={`text-sm font-bold ${isPaid ? 'text-green-700' : 'text-orange-700'}`}>
-                    {isPaid ? "✅ Paid — Delivered" : "⏳ Payment Pending at Pickup"}
+                    {isPaid ? "✅ Paid" : order.orderType === "Delivery" ? "⏳ Payment Pending for Delivery" : "⏳ Payment Pending at Pickup"}
                   </p>
                   <p className={`text-xl font-black ${isPaid ? 'text-green-600' : 'text-orange-500'}`}>
                     ₹{order.totalAmount}

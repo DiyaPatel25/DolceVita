@@ -69,7 +69,7 @@ const MyOrders = () => {
           {orders.map((order) => {
             const statusCfg = STATUS_CONFIG[order.status] || STATUS_CONFIG["Pending"];
             const StatusIcon = statusCfg.icon;
-            const isPaid = order.status === "Delivered";
+            const isPaid = order.paymentStatus === "Paid" || order.paymentMethod === "Online Payment";
 
             return (
               <div key={order._id}
@@ -118,7 +118,7 @@ const MyOrders = () => {
                       {isPaid ? "✅ Payment Received" : "⏳ Amount to be paid"}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                      {isPaid ? "Thank you! Enjoy your meal." : "Pay at the counter when you collect"}
+                      {isPaid ? "Thank you! Enjoy your meal." : order.orderType === "Delivery" ? "Payment pending for delivery" : "Pay at the counter when you collect"}
                     </p>
                   </div>
                   <p className={`text-2xl font-black ${isPaid ? 'text-green-600' : 'text-orange-500'}`}>

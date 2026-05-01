@@ -1,19 +1,46 @@
 import { AppContext } from "../../context/AppContext";
-import { useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { Utensils, DollarSign, AlignLeft, Tag, Image, Plus } from "lucide-react";
 
 const AddMenu = () => {
   const { axios, navigate, loading, setLoading, categories, fetchMenus } = useContext(AppContext);
   const [formData, setFormData] = useState({ name: "", price: "", description: "", category: "", image: "" });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+
+  useEffect(() => {
+    if (imageFile) {
+      const objectUrl = URL.createObjectURL(imageFile);
+      setImagePreview(objectUrl);
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+
+    setImagePreview(formData.image);
+  }, [imageFile, formData.image]);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
-      const { data } = await axios.post("/api/menu/add", formData);
+      const payload = imageFile ? (() => {
+        const data = new FormData();
+        data.append("name", formData.name);
+        data.append("price", formData.price);
+        data.append("description", formData.description);
+        data.append("category", formData.category);
+        data.append("image", imageFile);
+        return data;
+      })() : formData;
+
+      const { data } = await axios.post("/api/menu/add", payload);
       if (data.success) {
         toast.success(data.message);
         await fetchMenus();
@@ -46,7 +73,7 @@ const AddMenu = () => {
         <form onSubmit={handleSubmit} className="space-y-5">
           {fields.map(({ name, label, icon: Icon, type, placeholder }) => (
             <div key={name}>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{label} *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{label}{name !== "image" ? " *" : ""}</label>
               <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-orange-400 focus-within:bg-white transition-all duration-200">
                 <Icon className="w-4 h-4 text-gray-400 shrink-0" />
                 <input
@@ -54,13 +81,26 @@ const AddMenu = () => {
                   name={name}
                   value={formData[name]}
                   onChange={handleChange}
-                  required
+                  required={name !== "image"}
                   placeholder={placeholder}
                   className="bg-transparent outline-none text-sm w-full text-gray-700 placeholder-gray-400"
                 />
               </div>
             </div>
           ))}
+
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Or upload from device</label>
+            <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-orange-400 focus-within:bg-white transition-all duration-200">
+              <Image className="w-4 h-4 text-gray-400 shrink-0" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="bg-transparent outline-none text-sm w-full text-gray-700 file:mr-4 file:rounded-lg file:border-0 file:bg-orange-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-orange-700 hover:file:bg-orange-100"
+              />
+            </div>
+          </div>
 
           {/* Category */}
           <div>
@@ -83,9 +123,9 @@ const AddMenu = () => {
           </div>
 
           {/* Image Preview */}
-          {formData.image && (
+          {imagePreview && (
             <div className="rounded-xl overflow-hidden border border-gray-200">
-              <img src={formData.image} alt="Preview" className="w-full h-48 object-cover" onError={(e) => e.target.style.display = 'none'} />
+              <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" onError={(e) => e.target.style.display = 'none'} />
             </div>
           )}
 
