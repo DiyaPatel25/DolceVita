@@ -3,12 +3,21 @@ import { useNavigate } from "react-router-dom";
 export const AppContext = createContext();
 
 import axios from "axios";
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "";
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
+
+axios.interceptors.request.use((config) => {
+  const isAdminPath = window.location.pathname.startsWith("/admin");
+  config.headers = config.headers || {};
+  config.headers["x-auth-context"] = isAdminPath ? "admin" : "user";
+  return config;
+});
+
 import { toast } from "react-hot-toast";
 const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
   const [categories, setCategories] = useState([]);
@@ -59,10 +68,11 @@ const AppContextProvider = ({ children }) => {
   };
   useEffect(() => {
     if (cart?.items) {
-      const total = cart.items.reduce(
-        (sum, item) => sum + item.menuItem.price * item.quantity,
-        0
-      );
+      const total = cart.items.reduce((sum, item) => {
+        const basePrice = item.menuItem.price * item.quantity;
+        const customizationPrice = item.customizations?.addOnPrice || 0;
+        return sum + basePrice + (customizationPrice * item.quantity);
+      }, 0);
       setTotalPrice(total);
     }
   }, [cart]);
@@ -71,12 +81,24 @@ const AppContextProvider = ({ children }) => {
     0 || 0
   );
   // 🔹 Add to Cart function
-  const addToCart = async (menuId) => {
+  const addToCart = async (menuId, quantity = 1, customizations = {}) => {
+    if (!user) {
+      toast.error("Please log in to add items to cart");
+      navigate("/login");
+      return;
+    }
+
     try {
-      const { data } = await axios.post("/api/cart/add", {
+      const payload = {
         menuId,
-        quantity: 1,
-      });
+        quantity,
+      };
+      
+      if (Object.keys(customizations).length > 0) {
+        payload.customizations = customizations;
+      }
+
+      const { data } = await axios.post("/api/cart/add", payload);
       if (data.success) {
         toast.success(data.message);
         fetchCartData();
@@ -96,7 +118,7 @@ const AppContextProvider = ({ children }) => {
       if (data.success) {
         setCategories(data.categories);
       } else {
-        logconsole.log("Failed to fetch categories");
+        console.log("Failed to fetch categories");
       }
     } catch (error) {
       console.log("Error fetching categories:", error);
@@ -121,23 +143,56 @@ const AppContextProvider = ({ children }) => {
       const { data } = await axios.get("/api/auth/is-auth");
       if (data.success) {
         setUser(data.user);
-        if (data.admin) setAdmin(true);
+        setAdmin(Boolean(data.admin));
+      } else {
+        // Token invalid or expired
+        setUser(null);
+        setAdmin(null);
       }
     } catch (error) {
-      console.log(error);
+      console.log("Auth check failed:", error.response?.status);
+      // On error (401, 500, etc), user is not authenticated
+      setUser(null);
+      setAdmin(null);
     }
   };
 
   useEffect(() => {
-    isAuth();
+    let isMounted = true;
+
+    const initializeApp = async () => {
+      try {
+        await isAuth();
+      } finally {
+        if (isMounted) setAuthReady(true);
+      }
+    };
+
+    // Check auth status on app load before route guards decide
+    initializeApp();
     fetchCategories();
     fetchMenus();
     fetchCartData();
+
+    const handleFocus = () => {
+      isAuth();
+      fetchCartData();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleFocus);
+
+    return () => {
+      isMounted = false;
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleFocus);
+    };
   }, []);
   const value = {
     navigate,
     loading,
     setLoading,
+    authReady,
     user,
     setUser,
     axios,

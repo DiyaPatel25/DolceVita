@@ -1,17 +1,18 @@
 import DataAccess from "../config/dataAccess.js";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import sendWelcomeEmail from "../emailService.js";
 
 // Initialize data access for User
 const userDB = new DataAccess('User');
 
 // Generate JWT
-const generateToken = (res, payload) => {
+const generateToken = (res, payload, cookieName = "token") => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
-  res.cookie("token", token, {
+  res.cookie(cookieName, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    secure: false, // Allow HTTP in development
+    sameSite: "lax", // Allow cookies with cross-site requests in development
     maxAge: 24 * 60 * 60 * 1000,
   });
   return token;
@@ -53,7 +54,7 @@ export const loginUser = async (req, res) => {
     const adminPassword = process.env.ADMIN_PASSWORD;
 
     if (email === adminEmail && password === adminPassword) {
-      generateToken(res, { email, role: "admin" });
+      generateToken(res, { email, role: "admin" }, "adminToken");
       return res.json({
         message: "Admin logged in successfully",
         success: true,
@@ -72,7 +73,22 @@ export const loginUser = async (req, res) => {
       return res.json({ message: "Invalid credentials", success: false });
     }
 
-    generateToken(res, { id: user._id, role: "user" });
+    generateToken(res, { id: user._id, role: "user" }, "userToken");
+
+    // If this is the user's first successful login, send a welcome email.
+    try {
+      if (!user.hasBeenWelcomed) {
+        const emailSent = await sendWelcomeEmail(user.email, user.name);
+        if (emailSent) {
+          // mark user as welcomed to avoid duplicate emails
+          await userDB.findByIdAndUpdate(user._id, { hasBeenWelcomed: true });
+        }
+      }
+    } catch (err) {
+      console.error('Error sending welcome email on login:', err.message);
+      // Do not block login on email errors
+    }
+
     res.json({
       message: "User logged in successfully",
       success: true,
@@ -92,6 +108,8 @@ export const loginUser = async (req, res) => {
 export const logoutUser = async (req, res) => {
   try {
     res.clearCookie("token");
+    res.clearCookie("userToken");
+    res.clearCookie("adminToken");
     return res.json({ message: "User logged out successfully", success: true });
   } catch (error) {
     console.log(error.message);

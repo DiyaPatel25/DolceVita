@@ -9,11 +9,17 @@ const menuDB = new DataAccess('Menu');
 
 const getUserId = (req, res) => {
   let userId = null;
-  const token = req.cookies && req.cookies.token;
-  if (token) {
+  const cookies = req.cookies || {};
+  const tokenCandidates = [cookies.userToken, cookies.token];
+
+  for (const token of tokenCandidates) {
+    if (!token) continue;
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      userId = decoded.id;
+      if (decoded?.role === "user" && decoded?.id) {
+        userId = decoded.id;
+        break;
+      }
     } catch(e) {}
   }
   if (!userId) {
@@ -33,7 +39,7 @@ const getUserId = (req, res) => {
 
 export const addToCart = async (req, res) => {
   try {
-    const { menuId, quantity } = req.body;
+    const { menuId, quantity, customizations } = req.body;
     const id = getUserId(req, res);
     
     const menuItem = await menuDB.findById(menuId);
@@ -45,9 +51,13 @@ export const addToCart = async (req, res) => {
       cart = await cartDB.create({ user: id, items: [] });
     }
 
-    const existingItemIndex = cart.items.findIndex(
-      (item) => item.menuItem.toString() === menuId
-    );
+    // Find existing item with matching customizations
+    const customizationKey = JSON.stringify(customizations || {});
+    const existingItemIndex = cart.items.findIndex((item) => {
+      const itemMatch = item.menuItem.toString() === menuId;
+      const customizationMatch = JSON.stringify(item.customizations || {}) === customizationKey;
+      return itemMatch && customizationMatch;
+    });
 
     if (existingItemIndex > -1) {
       cart.items[existingItemIndex].quantity += quantity;
@@ -56,7 +66,11 @@ export const addToCart = async (req, res) => {
         cart.items.splice(existingItemIndex, 1);
       }
     } else if (quantity > 0) {
-      cart.items.push({ menuItem: menuId, quantity });
+      cart.items.push({
+        menuItem: menuId,
+        quantity,
+        customizations: customizations || {},
+      });
     }
 
     const updatedCart = await cartDB.findByIdAndUpdate(cart._id, { items: cart.items });

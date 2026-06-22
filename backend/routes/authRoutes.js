@@ -11,6 +11,7 @@ const authRoutes = express.Router();
 
 authRoutes.post("/register", registerUser);
 authRoutes.post("/login", loginUser);
+authRoutes.post("/admin/login", loginUser);
 authRoutes.post("/logout", logoutUser);
 authRoutes.get("/profile", protect, getProfile);
 authRoutes.get("/is-auth", protect, isAuth);

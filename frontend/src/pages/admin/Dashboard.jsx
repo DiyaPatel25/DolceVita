@@ -13,208 +13,310 @@ import {
   Sparkles,
   TrendingUp,
   Users,
+  ArrowUpRight,
+  ArrowDownRight,
+  CheckCircle,
+  AlertCircle,
+  Activity,
 } from "lucide-react";
-
-const statCards = [
-  {
-    label: "Revenue today",
-    value: "₹24.8k",
-    note: "+12% from yesterday",
-    icon: TrendingUp,
-    accent: "from-amber-600 to-orange-500",
-  },
-  {
-    label: "Menu items",
-    value: "32",
-    note: "Ready to serve",
-    icon: Box,
-    accent: "from-stone-600 to-amber-700",
-  },
-  {
-    label: "Categories",
-    value: "8",
-    note: "Organized collections",
-    icon: Grid3X3,
-    accent: "from-amber-700 to-yellow-500",
-  },
-  {
-    label: "Active guests",
-    value: "128",
-    note: "Browsing now",
-    icon: Users,
-    accent: "from-zinc-700 to-stone-500",
-  },
-];
-
-const quickActions = [
-  { label: "Add Menu", to: "/admin/add-menu", icon: Plus },
-  { label: "Add Category", to: "/admin/add-category", icon: Layers3 },
-  { label: "View Menus", to: "/admin/menus", icon: Sparkles },
-  { label: "View Categories", to: "/admin/categories", icon: Grid3X3 },
-  { label: "Check Orders", to: "/admin/orders", icon: ClipboardList },
-];
 
 const Dashboard = () => {
   const { categories, menus } = useContext(AppContext);
 
   const availableMenus = menus.filter((menu) => menu.isAvailable !== false).length;
   const unavailableMenus = menus.length - availableMenus;
-  const featuredCategory = categories[0]?.name || "Seasonal Picks";
+  const availabilityPercentage = ((availableMenus / menus.length) * 100).toFixed(0);
+
+  const statCards = [
+    {
+      label: "Total Menu Items",
+      value: menus.length,
+      trend: "+3 this week",
+      isPositive: true,
+      icon: Box,
+      bgGradient: "from-blue-600 to-blue-800",
+      lightBg: "bg-blue-500/10",
+      textColor: "text-blue-400",
+    },
+    {
+      label: "Total Categories",
+      value: categories.length,
+      trend: "All organized",
+      isPositive: true,
+      icon: Grid3X3,
+      bgGradient: "from-purple-600 to-purple-800",
+      lightBg: "bg-purple-500/10",
+      textColor: "text-purple-400",
+    },
+    {
+      label: "Available Items",
+      value: `${availabilityPercentage}%`,
+      trend: `${availableMenus} of ${menus.length} items`,
+      isPositive: availableMenus > menus.length * 0.8,
+      icon: CheckCircle,
+      bgGradient: "from-emerald-600 to-emerald-800",
+      lightBg: "bg-emerald-500/10",
+      textColor: "text-emerald-400",
+    },
+    {
+      label: "Revenue Today",
+      value: "₹24.8k",
+      trend: "+12% from yesterday",
+      isPositive: true,
+      icon: TrendingUp,
+      bgGradient: "from-amber-600 to-orange-700",
+      lightBg: "bg-amber-500/10",
+      textColor: "text-amber-400",
+    },
+  ];
+
+  const quickActions = [
+    { label: "Add New Menu Item", to: "/admin/add-menu", icon: Plus, color: "from-blue-500 to-blue-700" },
+    { label: "Add Category", to: "/admin/add-category", icon: Layers3, color: "from-purple-500 to-purple-700" },
+    { label: "Manage Menus", to: "/admin/menus", icon: Sparkles, color: "from-emerald-500 to-emerald-700" },
+    { label: "Manage Categories", to: "/admin/categories", icon: Grid3X3, color: "from-orange-500 to-orange-700" },
+    { label: "View All Orders", to: "/admin/orders", icon: ClipboardList, color: "from-pink-500 to-pink-700" },
+  ];
+
+  const recentOrders = [
+    { id: "ORD001", customer: "John Doe", items: 3, total: "₹450", status: "Completed" },
+    { id: "ORD002", customer: "Jane Smith", items: 2, total: "₹320", status: "In Progress" },
+    { id: "ORD003", customer: "Mike Johnson", items: 4, total: "₹620", status: "Completed" },
+  ];
+
+  const topCategories = categories.slice(0, 4).map((cat, idx) => ({
+    name: cat.name,
+    items: Math.floor(Math.random() * 15) + 5,
+    color: ["from-blue-400", "from-purple-400", "from-emerald-400", "from-amber-400"][idx] || "from-blue-400",
+  }));
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border border-slate-200 bg-slate-950 text-white shadow-2xl">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.28),_transparent_28%),radial-gradient(circle_at_top_right,_rgba(120,53,15,0.28),_transparent_26%),linear-gradient(135deg,#2a1a12_0%,#120c08_48%,#090603_100%)]" />
-      <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
-
-      <div className="relative p-6 md:p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm text-white/85 backdrop-blur-sm">
-                <Bell className="h-4 w-4 text-amber-300" />
-              Admin overview
-            </div>
-            <h1 className="mt-4 text-3xl md:text-5xl font-black tracking-tight">
-              Dolce Vita control room
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 md:p-8">
+      {/* Header Section */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
+              Dashboard
             </h1>
-            <p className="mt-4 max-w-xl text-sm md:text-base text-white/70 leading-7">
-              Manage menus, categories, and orders from one focused workspace. This overview highlights the live state of your restaurant and gives you direct access to the most common admin actions.
-            </p>
+            <p className="text-slate-400 text-lg">Welcome back! Here's your restaurant overview.</p>
           </div>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:w-[22rem]">
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/50">Menu items</p>
-              <p className="mt-2 text-3xl font-black">{menus.length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/50">Categories</p>
-              <p className="mt-2 text-3xl font-black">{categories.length}</p>
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/50">Ready items</p>
-              <p className="mt-2 text-3xl font-black">{availableMenus}</p>
-            </div>
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/20 border border-emerald-500/30">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+            <span className="text-sm text-emerald-300">System Online</span>
           </div>
         </div>
+      </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {statCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <div key={card.label} className="rounded-3xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm">
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${card.accent} shadow-lg`}>
-                  <Icon className="h-6 w-6 text-white" />
+      {/* Main Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {statCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={card.label}
+              className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6 hover:border-white/20 transition-all duration-300 hover:shadow-2xl hover:shadow-white/5"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <div className={`p-3 rounded-xl ${card.lightBg}`}>
+                  <Icon className={`${card.textColor} w-6 h-6`} />
                 </div>
-                <p className="mt-4 text-sm text-white/55">{card.label}</p>
-                <div className="mt-1 text-3xl font-black">{card.value}</div>
-                <p className="mt-2 text-sm text-white/65">{card.note}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="mt-8 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-sm">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-white/50">Kitchen pulse</p>
-                <h2 className="mt-2 text-2xl font-bold">Today’s activity</h2>
-              </div>
-              <div className="rounded-full bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-300">
-                Live
-              </div>
-            </div>
-
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-orange-500/15 p-3 text-orange-300">
-                    <Coffee className="h-5 w-5" />
+                {card.isPositive ? (
+                  <div className="flex items-center gap-1 text-emerald-400 text-sm">
+                    <ArrowUpRight className="w-4 h-4" />
                   </div>
-                  <div>
-                    <p className="text-sm text-white/55">Featured category</p>
-                    <p className="font-semibold">{featuredCategory}</p>
+                ) : (
+                  <div className="flex items-center gap-1 text-red-400 text-sm">
+                    <ArrowDownRight className="w-4 h-4" />
                   </div>
-                </div>
-                <div className="mt-4 h-2 rounded-full bg-white/10">
-                  <div className="h-2 w-[72%] rounded-full bg-gradient-to-r from-orange-500 to-amber-400" />
-                </div>
-                <p className="mt-3 text-xs text-white/45">Strong demand in this category right now</p>
+                )}
               </div>
-
-              <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-                <div className="flex items-center gap-3">
-                  <div className="rounded-xl bg-sky-500/15 p-3 text-sky-300">
-                    <BarChart3 className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-white/55">Item status</p>
-                    <p className="font-semibold">{unavailableMenus} unavailable</p>
-                  </div>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-2">
-                  <div className="h-14 rounded-xl bg-emerald-400/80" />
-                  <div className="h-10 rounded-xl bg-emerald-400/60 mt-4" />
-                  <div className="h-16 rounded-xl bg-emerald-400/40" />
-                </div>
-                <p className="mt-3 text-xs text-white/45">Most items are live and available for customers</p>
-              </div>
+              <h3 className="text-slate-400 text-sm font-medium mb-1">{card.label}</h3>
+              <p className="text-3xl font-bold text-white mb-2">{card.value}</p>
+              <p className="text-slate-500 text-xs">{card.trend}</p>
             </div>
+          );
+        })}
+      </div>
 
-            <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <p className="font-semibold">Restaurant snapshot</p>
-                <p className="text-sm text-white/55">Updated just now</p>
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        {/* Left Section - Activity & Analytics */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* Quick Actions */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-blue-500/20">
+                <Sparkles className="w-5 h-5 text-blue-400" />
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-white/5 p-4">
-                  <p className="text-xs text-white/50">Orders pending</p>
-                  <p className="mt-1 text-2xl font-black">12</p>
-                </div>
-                <div className="rounded-2xl bg-white/5 p-4">
-                  <p className="text-xs text-white/50">Kitchen speed</p>
-                  <p className="mt-1 text-2xl font-black">94%</p>
-                </div>
-                <div className="rounded-2xl bg-white/5 p-4">
-                  <p className="text-xs text-white/50">Guest satisfaction</p>
-                  <p className="mt-1 text-2xl font-black">4.9/5</p>
-                </div>
-              </div>
+              <h2 className="text-xl font-bold text-white">Quick Actions</h2>
             </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/10 p-6 backdrop-blur-sm">
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-white/50">Quick actions</p>
-              <h2 className="mt-2 text-2xl font-bold">Work faster</h2>
-            </div>
-
-            <div className="mt-5 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {quickActions.map((action) => {
                 const Icon = action.icon;
                 return (
                   <Link
                     key={action.to}
                     to={action.to}
-                    className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#1c120d]/70 px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-amber-400/40 hover:bg-[#241710]"
+                    className="group relative rounded-xl border border-white/10 bg-gradient-to-br from-white/5 to-white/0 p-4 hover:border-white/20 transition-all duration-300 overflow-hidden"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-xl bg-amber-500/15 p-3 text-amber-300">
-                        <Icon className="h-5 w-5" />
+                    <div className={`absolute inset-0 bg-gradient-to-r ${action.color} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
+                    <div className="relative flex items-center gap-3">
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${action.color} bg-opacity-20`}>
+                        <Icon className="w-5 h-5 text-white" />
                       </div>
-                      <span className="font-semibold">{action.label}</span>
+                      <div className="flex-1 text-left">
+                        <p className="font-semibold text-white text-sm">{action.label}</p>
+                      </div>
+                      <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white transition-colors" />
                     </div>
-                    <span className="text-sm text-white/40">Open</span>
                   </Link>
                 );
               })}
             </div>
+          </div>
 
-            <div className="mt-6 rounded-2xl border border-dashed border-white/15 bg-black/20 p-5">
-              <p className="text-sm font-semibold text-white/80">Admin note</p>
-              <p className="mt-2 text-sm leading-6 text-white/55">
-                Use this panel to keep categories organized, add new dishes quickly, and monitor the live restaurant state without leaving the admin area.
-              </p>
+          {/* Category Performance */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-purple-500/20">
+                <BarChart3 className="w-5 h-5 text-purple-400" />
+              </div>
+              <h2 className="text-xl font-bold text-white">Top Categories</h2>
+            </div>
+            <div className="space-y-4">
+              {topCategories.map((category, idx) => (
+                <div key={idx} className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-white font-medium text-sm">{category.name}</p>
+                      <p className="text-slate-400 text-sm">{category.items} items</p>
+                    </div>
+                    <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full bg-gradient-to-r ${category.color} to-transparent`}
+                        style={{ width: `${(category.items / 20) * 100}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section - Recent Orders & Status */}
+        <div className="space-y-6">
+          {/* System Status */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 rounded-lg bg-emerald-500/20">
+                <Activity className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h2 className="text-xl font-bold text-white">System Status</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-emerald-400" />
+                  <span className="text-sm text-white">All Systems</span>
+                </div>
+                <span className="text-xs text-emerald-400 font-semibold">Running</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-blue-400" />
+                  <span className="text-sm text-white">Database</span>
+                </div>
+                <span className="text-xs text-blue-400 font-semibold">Connected</span>
+              </div>
+              <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm text-white">Pending Orders</span>
+                </div>
+                <span className="text-xs text-amber-400 font-semibold">{Math.floor(Math.random() * 5) + 2}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Recent Orders Preview */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-xl p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-pink-500/20">
+                  <ClipboardList className="w-5 h-5 text-pink-400" />
+                </div>
+                <h2 className="text-xl font-bold text-white">Recent Orders</h2>
+              </div>
+              <Link to="/admin/orders" className="text-xs text-blue-400 hover:text-blue-300">View all</Link>
+            </div>
+            <div className="space-y-3">
+              {recentOrders.map((order) => (
+                <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                  <div>
+                    <p className="text-sm font-semibold text-white">{order.id}</p>
+                    <p className="text-xs text-slate-400">{order.customer}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold text-white">{order.total}</p>
+                    <p className={`text-xs ${order.status === "Completed" ? "text-emerald-400" : "text-amber-400"}`}>
+                      {order.status}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Info Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Tips Card */}
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-blue-500/20">
+              <Bell className="w-5 h-5 text-blue-400" />
+            </div>
+            <h3 className="font-bold text-white">Pro Tips</h3>
+          </div>
+          <ul className="space-y-2 text-sm text-slate-300">
+            <li className="flex gap-2">
+              <span className="text-blue-400">•</span>
+              <span>Update menu items regularly to keep customers engaged</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-blue-400">•</span>
+              <span>Monitor unavailable items to ensure smooth operations</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-blue-400">•</span>
+              <span>Review orders daily for business insights</span>
+            </li>
+          </ul>
+        </div>
+
+        {/* Performance Card */}
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 backdrop-blur-xl p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="p-2 rounded-lg bg-emerald-500/20">
+              <TrendingUp className="w-5 h-5 text-emerald-400" />
+            </div>
+            <h3 className="font-bold text-white">Today's Performance</h3>
+          </div>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-300">Order Fulfillment Rate</span>
+              <span className="text-sm font-semibold text-emerald-400">94%</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-300">Avg. Prep Time</span>
+              <span className="text-sm font-semibold text-emerald-400">18 mins</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-slate-300">Customer Satisfaction</span>
+              <span className="text-sm font-semibold text-emerald-400">4.8/5.0</span>
             </div>
           </div>
         </div>

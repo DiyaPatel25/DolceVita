@@ -15,7 +15,7 @@ const uploadImageToCloudinary = async (filePath) => {
 
 export const addMenuItem = async (req, res) => {
   try {
-    const { name, description, price, category, image } = req.body;
+    const { name, description, price, category, image, countInStock, lowStockThreshold } = req.body;
     const uploadedImage = req.file ? await uploadImageToCloudinary(req.file.path) : image;
 
     if (!name || !description || !price || !category || !uploadedImage) {
@@ -30,7 +30,9 @@ export const addMenuItem = async (req, res) => {
       price,
       category,
       image: uploadedImage,
-      isAvailable: true
+      isAvailable: true,
+      countInStock: countInStock !== undefined ? Number(countInStock) : 20,
+      lowStockThreshold: lowStockThreshold !== undefined ? Number(lowStockThreshold) : 5,
     });
     res.status(201).json({
       message: "Menu item added",
@@ -68,7 +70,9 @@ export const getAllMenuItems = async (req, res) => {
       // Map missing Mongoose defaults for legacy local items
       menuItems = menuItems.map(item => ({
         ...item,
-        isAvailable: item.isAvailable !== undefined ? item.isAvailable : true
+        isAvailable: item.isAvailable !== undefined ? item.isAvailable : true,
+        countInStock: item.countInStock !== undefined ? item.countInStock : 20,
+        lowStockThreshold: item.lowStockThreshold !== undefined ? item.lowStockThreshold : 5,
       }));
     }
 
@@ -82,7 +86,7 @@ export const getAllMenuItems = async (req, res) => {
 export const updateMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, price, category, isAvailable, image } = req.body;
+    const { name, description, price, category, isAvailable, image, countInStock, lowStockThreshold } = req.body;
 
     const menuItem = await menuDB.findById(id);
     if (!menuItem)
@@ -101,6 +105,8 @@ export const updateMenuItem = async (req, res) => {
     if (price) updateData.price = price;
     if (category) updateData.category = category;
     if (isAvailable !== undefined) updateData.isAvailable = isAvailable;
+    if (countInStock !== undefined) updateData.countInStock = Number(countInStock);
+    if (lowStockThreshold !== undefined) updateData.lowStockThreshold = Number(lowStockThreshold);
 
     const updatedMenuItem = await menuDB.findByIdAndUpdate(id, updateData);
     res

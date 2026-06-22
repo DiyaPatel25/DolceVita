@@ -16,14 +16,14 @@
     "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3",
+    "dotenv": "^17.4.2",
     "express": "^5.1.0",
     "firebase": "^12.12.0",
     "firebase-admin": "^13.8.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.1",
     "multer": "^2.0.2",
-    "nodemailer": "^8.0.5",
+    "nodemailer": "^8.0.7",
     "nodemon": "^3.1.10",
     "razorpay": "^2.9.6"
   }

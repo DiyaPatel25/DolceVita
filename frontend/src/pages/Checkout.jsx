@@ -26,6 +26,71 @@ const Checkout = () => {
 
   const selectedPaymentIsOnline = paymentMethod === "Online Payment";
 
+  const buildOrderPayload = () => {
+    const payload = {
+      orderType,
+      address: orderType === "Delivery" ? address.trim() : "Pickup",
+      paymentMethod: orderType === "Delivery" ? "Online Payment" : paymentMethod,
+      cartItems: cart?.items?.map((item) => ({
+        menuItem: item.menuItem?._id || item.menuItem,
+        quantity: item.quantity,
+      })) || [],
+    };
+
+    if (!user) {
+      payload.name = name;
+      payload.email = email;
+      if (orderType !== "Delivery" && paymentMethod !== "Online Payment") {
+        payload.password = password;
+      }
+    }
+
+    return payload;
+  };
+
+  const openRazorpayCheckout = ({ keyId, order, prefillName, prefillEmail }) =>
+    new Promise((resolve, reject) => {
+      if (!window.Razorpay) {
+        reject(new Error("Razorpay SDK failed to load"));
+        return;
+      }
+
+      const rzp = new window.Razorpay({
+        key: keyId,
+        amount: order.amount,
+        currency: order.currency,
+        name: "Dolce Vita",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: (response) => resolve(response),
+        prefill: {
+          name: prefillName || "",
+          email: prefillEmail || "",
+          contact: "9999999999",
+        },
+        config: {
+          upi: {
+            flow: "collect",
+          },
+        },
+        method: {
+          upi: true,
+          card: true,
+          netbanking: true,
+          wallet: true,
+        },
+        theme: {
+          color: "#f97316",
+        },
+        modal: {
+          ondismiss: () => reject(new Error("Payment cancelled")),
+          confirm_close: true,
+        },
+      });
+
+      rzp.open();
+    });
+
   const placeOrder = async () => {
     if (!user) {
       if (!name || !email) {
@@ -50,27 +115,40 @@ const Checkout = () => {
 
     try {
       setLoading(true);
-      const payload = {
-        orderType,
-        address: orderType === "Delivery" ? address.trim() : "Pickup",
-        paymentMethod: orderType === "Delivery" ? "Online Payment" : paymentMethod,
-        cartItems: cart?.items?.map((item) => ({
-          menuItem: item.menuItem?._id || item.menuItem,
-          quantity: item.quantity,
-        })) || [],
-      };
+      const payload = buildOrderPayload();
 
-      if (!user) {
-        payload.name = name;
-        payload.email = email;
-        if (orderType !== "Delivery" && paymentMethod !== "Online Payment") {
-          payload.password = password;
+      if (selectedPaymentIsOnline || orderType === "Delivery") {
+        const paymentOrderRes = await axios.post("/api/order/create-payment-order", {
+          amount: Number(totalPrice),
+        });
+
+        if (!paymentOrderRes.data?.success) {
+          toast.error(paymentOrderRes.data?.message || "Could not start payment");
+          return;
         }
+
+        const paymentResponse = await openRazorpayCheckout({
+          keyId: paymentOrderRes.data.keyId,
+          order: paymentOrderRes.data.order,
+          prefillName: user?.name || name,
+          prefillEmail: user?.email || email,
+        });
+
+        const verifyRes = await axios.post("/api/order/verify-payment", paymentResponse);
+        if (!verifyRes.data?.success) {
+          toast.error(verifyRes.data?.message || "Payment verification failed");
+          return;
+        }
+
+        payload.paymentVerified = true;
       }
 
       const { data } = await axios.post("/api/order/place", payload);
       if (data.success) {
         toast.success(orderType === "Delivery" ? "Order placed and paid online!" : paymentMethod === "Online Payment" ? "Order placed and paid online!" : "Order placed! See you at the counter 🎉");
+        if (Array.isArray(data.lowStockAlerts) && data.lowStockAlerts.length > 0) {
+          toast(`Low stock: ${data.lowStockAlerts.join(", ")}`);
+        }
         if (data.user) setUser(data.user);
         setCart({ items: [] });
         navigate("/my-orders");

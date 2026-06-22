@@ -60,5 +60,65 @@
     "_id": "1776111735133x9w54s2yh",
     "createdAt": "2026-04-13T20:22:15.133Z",
     "updatedAt": "2026-04-13T20:22:15.133Z"
+  },
+  {
+    "name": "Tiramisu Tub Cake",
+    "description": "Classic Italian Tiramisu in a customizable tub. Layer your favorite toppings and choose extra cream!",
+    "price": 350,
+    "category": {
+      "_id": "desserts_cat",
+      "name": "Desserts"
+    },
+    "image": "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=400&h=400&fit=crop",
+    "isCustomizable": true,
+    "customizationOptions": {
+      "hasExtraCream": true,
+      "extraCreamPrice": 50,
+      "toppings": [
+        { "name": "Nutella", "price": 30 },
+        { "name": "Biscoff", "price": 25 },
+        { "name": "Chocolate Shavings", "price": 20 },
+        { "name": "Caramel Drizzle", "price": 15 },
+        { "name": "Cocoa Powder", "price": 10 },
+        { "name": "Whipped Cream", "price": 20 },
+        { "name": "Fresh Berries", "price": 35 }
+      ]
+    },
+    "countInStock": 25,
+    "lowStockThreshold": 5,
+    "isAvailable": true,
+    "_id": "tiramisu_tub_1",
+    "createdAt": "2026-05-11T00:00:00.000Z",
+    "updatedAt": "2026-05-11T00:00:00.000Z"
+  },
+  {
+    "name": "Cheesecake Tub Cake",
+    "description": "Rich creamy cheesecake in a tub. Customize with your favorite toppings and extra cream!",
+    "price": 380,
+    "category": {
+      "_id": "desserts_cat",
+      "name": "Desserts"
+    },
+    "image": "https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=400&fit=crop",
+    "isCustomizable": true,
+    "customizationOptions": {
+      "hasExtraCream": true,
+      "extraCreamPrice": 50,
+      "toppings": [
+        { "name": "Nutella", "price": 30 },
+        { "name": "Biscoff", "price": 25 },
+        { "name": "Chocolate Shavings", "price": 20 },
+        { "name": "Caramel Drizzle", "price": 15 },
+        { "name": "Fresh Strawberries", "price": 40 },
+        { "name": "Blueberries", "price": 35 },
+        { "name": "Lemon Zest", "price": 10 }
+      ]
+    },
+    "countInStock": 20,
+    "lowStockThreshold": 5,
+    "isAvailable": true,
+    "_id": "cheesecake_tub_1",
+    "createdAt": "2026-05-11T00:00:00.000Z",
+    "updatedAt": "2026-05-11T00:00:00.000Z"
   }
 ]

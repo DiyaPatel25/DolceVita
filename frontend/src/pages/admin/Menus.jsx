@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import { Trash2, ImageOff, IndianRupee } from "lucide-react";
 import toast from "react-hot-toast";
@@ -17,6 +17,36 @@ const Menus = () => {
       }
     } catch (error) {
       toast.error(error?.response?.data?.message || "Something went wrong");
+    }
+  };
+
+  const [editingId, setEditingId] = useState(null);
+  const [stockValue, setStockValue] = useState(0);
+  const [thresholdValue, setThresholdValue] = useState(5);
+
+  const startEdit = (item) => {
+    setEditingId(item._id);
+    setStockValue(item.countInStock ?? 20);
+    setThresholdValue(item.lowStockThreshold ?? 5);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+  };
+
+  const saveStock = async (id) => {
+    try {
+      const payload = { countInStock: Number(stockValue), lowStockThreshold: Number(thresholdValue) };
+      const { data } = await axios.put(`/api/menu/update/${id}`, payload);
+      if (data.success) {
+        toast.success('Stock updated');
+        fetchMenus();
+        setEditingId(null);
+      } else {
+        toast.error(data.message || 'Update failed');
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
 
@@ -69,6 +99,34 @@ const Menus = () => {
                 <div className="flex items-center gap-1 mt-2">
                   <IndianRupee className="w-3.5 h-3.5 text-orange-500" />
                   <span className="font-black text-orange-500 text-base">{item.price}</span>
+                </div>
+                <div className="mt-3 text-sm text-slate-600">
+                  {editingId === item._id ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="w-32">Count In Stock</label>
+                        <input type="number" value={stockValue} onChange={(e)=>setStockValue(e.target.value)} className="w-24 rounded-md p-1 border" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="w-32">Low Stock Threshold</label>
+                        <input type="number" value={thresholdValue} onChange={(e)=>setThresholdValue(e.target.value)} className="w-24 rounded-md p-1 border" />
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        <button onClick={()=>saveStock(item._id)} className="px-3 py-1 rounded bg-green-600 text-white">Save</button>
+                        <button onClick={cancelEdit} className="px-3 py-1 rounded bg-gray-200">Cancel</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="text-xs text-gray-500">Stock: <span className="font-bold text-gray-700">{item.countInStock ?? 20}</span></div>
+                        <div className="text-xs text-gray-500">Alert Threshold: <span className="font-bold text-gray-700">{item.lowStockThreshold ?? 5}</span></div>
+                      </div>
+                      <div>
+                        <button onClick={()=>startEdit(item)} className="px-2 py-1 rounded bg-blue-500 text-white text-sm">Edit Stock</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

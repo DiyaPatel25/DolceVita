@@ -26,7 +26,21 @@ const MyOrders = () => {
     }
   };
 
-  useEffect(() => { fetchMyOrders(); }, []);
+  useEffect(() => {
+    fetchMyOrders();
+
+    const handleFocus = () => {
+      if (!document.hidden) fetchMyOrders();
+    };
+
+    window.addEventListener("focus", handleFocus);
+    document.addEventListener("visibilitychange", handleFocus);
+
+    return () => {
+      window.removeEventListener("focus", handleFocus);
+      document.removeEventListener("visibilitychange", handleFocus);
+    };
+  }, []);
 
   if (loading) {
     return (

@@ -24,10 +24,23 @@ import FloatingCart from "./components/FloatingCart";
 
 const App = () => {
   const adminPath = useLocation().pathname.includes("admin");
-  const { admin } = useContext(AppContext);
+  const { admin, authReady } = useContext(AppContext);
 
   // Redirect to /login if not admin
-  const AdminGuard = ({ children }) => admin ? children : <Navigate to="/login" replace />;
+  const AdminGuard = ({ children }) => {
+    if (!authReady) {
+      return (
+        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
+          <div className="text-center">
+            <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-orange-500/20 border-t-orange-500" />
+            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Restoring your session...</p>
+          </div>
+        </div>
+      );
+    }
+
+    return admin ? children : <Navigate to="/login" replace />;
+  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>

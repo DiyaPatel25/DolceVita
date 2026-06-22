@@ -16,6 +16,10 @@ const orderSchema=new mongoose.Schema({
           type: Number,
           required: true,
         },
+        customizations: {
+          type: Object,
+          default: {}
+        }
       },
     ],
     totalAmount: {
@@ -33,7 +37,7 @@ const orderSchema=new mongoose.Schema({
     },
       status: {
       type: String,
-      enum: ["Pending", "Preparing", "Delivered"],
+      enum: ["Pending", "Preparing", "Ready", "Delivered"],
       default: "Pending",
     },
      paymentMethod: {

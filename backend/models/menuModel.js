@@ -25,9 +25,43 @@ const menuSchema=new mongoose.Schema({
     isAvailable:{
       type:Boolean,
       default:true
+    },
+    countInStock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    lowStockThreshold: {
+      type: Number,
+      default: 5,
+      min: 0,
+    },
+    isCustomizable: {
+      type: Boolean,
+      default: false
+    },
+    customizationOptions: {
+      type: Object,
+      default: {}
     }
 
 },{timestamps:true});
+
+menuSchema.methods.isLowStock = function () {
+  return this.countInStock <= this.lowStockThreshold;
+};
+
+menuSchema.methods.getAvailableToppings = function () {
+  return this.customizationOptions?.toppings || [];
+};
+
+menuSchema.methods.hasExtraCreamOption = function () {
+  return this.customizationOptions?.hasExtraCream === true;
+};
+
+menuSchema.methods.getExtraCreamPrice = function () {
+  return this.customizationOptions?.extraCreamPrice || 50;
+};
 
 const Menu=mongoose.model("Menu",menuSchema);
 export default Menu;

@@ -45,32 +45,55 @@ const Cart = () => {
           </thead>
 
           <tbody>
-            {cart.items.map((item) => (
-              <tr key={item._id} className="border-t" style={{ borderColor: 'var(--border-color)' }}>
-                <td className="py-3 px-4 flex items-center space-x-3">
-                  <img
-                    src={item.menuItem.image}
-                    alt={item.menuItem.name}
-                    className="w-12 h-12 rounded object-cover"
-                  />
-                  <span className="font-medium text-gray-800">
-                    {item.menuItem.name}
-                  </span>
-                </td>
-                <td className="py-3 px-4 text-center text-gray-700">
-                  {item.quantity}
-                </td>
-                <td className="py-3 px-4 text-center text-gray-700">
-                  ₹{item.menuItem.price}
-                </td>
-                <td className="py-3 px-4 text-center text-gray-700 font-semibold">
-                  ₹{item.menuItem.price * item.quantity}
-                </td>
-                <td className="py-3 px-4 text-center text-gray-700 font-semibold">
-                  <X onClick={() => removeFromCart(item.menuItem._id)} />
-                </td>
-              </tr>
-            ))}
+            {cart.items.map((item) => {
+              const customizationPrice = item.customizations?.addOnPrice || 0;
+              const itemTotal = (item.menuItem.price + customizationPrice) * item.quantity;
+              return (
+                <tr key={item._id} className="border-t" style={{ borderColor: 'var(--border-color)' }}>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center space-x-3">
+                      <img
+                        src={item.menuItem.image}
+                        alt={item.menuItem.name}
+                        className="w-12 h-12 rounded object-cover"
+                      />
+                      <div>
+                        <span className="font-medium text-gray-800 block">
+                          {item.menuItem.name}
+                        </span>
+                        {item.customizations && Object.keys(item.customizations).length > 0 && (
+                          <div className="text-xs text-gray-600 mt-1 space-y-0.5">
+                            {item.customizations.extraCream && (
+                              <div className="text-orange-600 font-semibold">✓ Extra Cream</div>
+                            )}
+                            {item.customizations.selectedToppings && item.customizations.selectedToppings.length > 0 && (
+                              <div className="text-orange-600 font-semibold">
+                                ✓ {item.customizations.selectedToppings.map(t => t.name).join(", ")}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700">
+                    {item.quantity}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700">
+                    ₹{item.menuItem.price}
+                    {customizationPrice > 0 && (
+                      <div className="text-xs text-orange-600">+₹{customizationPrice}</div>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-semibold">
+                    ₹{itemTotal}
+                  </td>
+                  <td className="py-3 px-4 text-center text-gray-700 font-semibold">
+                    <X onClick={() => removeFromCart(item.menuItem._id)} className="cursor-pointer hover:text-red-600" />
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

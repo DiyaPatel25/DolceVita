@@ -1,7 +1,12 @@
-import React, { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import React, { useContext, useState } from "react";
+import { MapPin, Phone, Mail, Clock, Send, Instagram } from "lucide-react";
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-hot-toast";
+
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || "919601370361";
 
 const Contact = () => {
+  const { axios } = useContext(AppContext);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -11,6 +16,7 @@ const Contact = () => {
   });
 
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -19,24 +25,54 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = () => {
+  const openWhatsAppInquiry = (values) => {
+    const text = [
+      "Hello Dolce Vita, I have an inquiry:",
+      `Name: ${values.name}`,
+      `Email: ${values.email}`,
+      `Phone: ${values.phone || "Not provided"}`,
+      `Subject: ${values.subject}`,
+      `Message: ${values.message}`,
+    ].join("\n");
+
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+  };
+
+  const handleSubmit = async () => {
     if (
       formData.name &&
       formData.email &&
       formData.subject &&
       formData.message
     ) {
-      setSubmitted(true);
-      setTimeout(() => {
-        setSubmitted(false);
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          subject: "",
-          message: "",
-        });
-      }, 3000);
+      try {
+        setSending(true);
+        const { data } = await axios.post("/api/contact/send", formData);
+
+        if (data.success) {
+          const submittedInquiry = { ...formData };
+          setSubmitted(true);
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            subject: "",
+            message: "",
+          });
+          openWhatsAppInquiry(submittedInquiry);
+          toast.success("WhatsApp opened. Tap send to deliver inquiry instantly.");
+          setTimeout(() => setSubmitted(false), 3000);
+        } else {
+          toast.error(data.message || "Failed to send your message");
+        }
+      } catch (error) {
+        toast.error(error.response?.data?.message || "Failed to send your message");
+      } finally {
+        setSending(false);
+      }
+    } else {
+      toast.error("Please fill all required fields");
     }
   };
 
@@ -107,6 +143,25 @@ const Contact = () => {
 
               <div className="flex items-start space-x-4">
                 <div className="bg-orange-500 p-3 rounded-lg">
+                  <Instagram className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-gray-800">Instagram</h3>
+                  <p className="text-gray-600">
+                    <a
+                      href="https://www.instagram.com/dolcevita___cakes/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-orange-500"
+                    >
+                      @dolcevita___cakes
+                    </a>
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="bg-orange-500 p-3 rounded-lg">
                   <Clock className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -121,15 +176,6 @@ const Contact = () => {
                   </p>
                 </div>
               </div>
-            </div>
-
-            {/* Map Image */}
-            <div className="mt-8 rounded-lg overflow-hidden shadow-lg">
-              <img
-                src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=600"
-                alt="Restaurant Location"
-                className="w-full h-64 object-cover"
-              />
             </div>
           </div>
 
@@ -218,11 +264,15 @@ const Contact = () => {
 
               <button
                 onClick={handleSubmit}
+                disabled={sending}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 flex items-center justify-center space-x-2"
               >
                 <Send className="w-5 h-5" />
-                <span>Send Message</span>
+                <span>{sending ? "Sending..." : "Send Message"}</span>
               </button>
+              <p className="text-xs text-gray-500 mt-3">
+                Free WhatsApp mode: after submit, WhatsApp opens with your inquiry prefilled.
+              </p>
             </div>
           </div>
         </div>

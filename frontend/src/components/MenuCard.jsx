@@ -1,9 +1,11 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import { ShoppingCart, Plus, Minus } from "lucide-react";
+import CustomizerModal from "./CustomizerModal";
 
 const MenuCard = ({ menu }) => {
   const { navigate, addToCart, cart, axios, fetchCartData } = useContext(AppContext);
+  const [showCustomizer, setShowCustomizer] = useState(false);
 
   // Find quantity of this item in cart
   const cartItem = cart?.items?.find(
@@ -19,6 +21,18 @@ const MenuCard = ({ menu }) => {
       await axios.post("/api/cart/add", { menuId: menu._id, quantity: -1 });
     }
     fetchCartData();
+  };
+
+  const handleAddClick = () => {
+    if (menu.isCustomizable) {
+      setShowCustomizer(true);
+    } else {
+      addToCart(menu._id);
+    }
+  };
+
+  const handleCustomizerAdd = (menuId, qty, customizations) => {
+    addToCart(menuId, qty, customizations);
   };
 
   return (
@@ -53,7 +67,7 @@ const MenuCard = ({ menu }) => {
 
           {quantity === 0 ? (
             <button
-              onClick={() => addToCart(menu._id)}
+              onClick={handleAddClick}
               disabled={!menu.isAvailable}
               className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300
                 ${menu.isAvailable
@@ -61,7 +75,7 @@ const MenuCard = ({ menu }) => {
                   : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
             >
               <ShoppingCart className="w-3.5 h-3.5" />
-              Add
+              {menu.isCustomizable ? "Customize" : "Add"}
             </button>
           ) : (
             <div className="flex items-center gap-2">
@@ -73,7 +87,7 @@ const MenuCard = ({ menu }) => {
               </button>
               <span className="font-bold text-sm w-5 text-center" style={{ color: 'var(--text-color)' }}>{quantity}</span>
               <button
-                onClick={() => addToCart(menu._id)}
+                onClick={handleAddClick}
                 className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -82,6 +96,13 @@ const MenuCard = ({ menu }) => {
           )}
         </div>
       </div>
+
+      <CustomizerModal
+        item={menu}
+        isOpen={showCustomizer}
+        onClose={() => setShowCustomizer(false)}
+        onAddToCart={handleCustomizerAdd}
+      />
     </div>
   );
 };
