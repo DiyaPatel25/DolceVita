@@ -26,7 +26,13 @@ connectCloudinary();
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:5176", "http://localhost:5177", "http://localhost:5178", "http://localhost:5179", "http://localhost:5180", "http://localhost:5181", "http://localhost:5182", "http://localhost:5183", "https://resturant-app-peach.vercel.app"],
+    origin: [
+      "http://localhost:5173", 
+      "http://localhost:5174", 
+      "https://resturant-app-peach.vercel.app",
+      "https://dolce-vita.food",
+      "https://www.dolce-vita.food"
+    ],
     credentials: true,
   })
 );

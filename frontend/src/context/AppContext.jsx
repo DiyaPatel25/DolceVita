@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 export const AppContext = createContext();
 
 import axios from "axios";
-axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || "http://localhost:5000";
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL || (import.meta.env.MODE === "production" ? "https://dolce-vita-backend.onrender.com" : "http://localhost:5000");
 axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use((config) => {
