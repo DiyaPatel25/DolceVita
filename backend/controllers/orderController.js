@@ -106,7 +106,7 @@ export const placeOrder = async (req, res) => {
 
     let userId = null;
     const cookies = req.cookies || {};
-    const tokenCandidates = [cookies.userToken, cookies.token];
+    const tokenCandidates = [cookies.userToken, cookies.adminToken, cookies.token];
     let hasUserToken = false;
 
     for (const token of tokenCandidates) {
@@ -132,8 +132,8 @@ export const placeOrder = async (req, res) => {
         const newToken = jwt.sign({ id: user._id, role: user.isAdmin ? "admin" : "user" }, process.env.JWT_SECRET, { expiresIn: "1d" });
         res.cookie("token", newToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+          secure: true,
+          sameSite: "none",
           maxAge: 24 * 60 * 60 * 1000,
         });
       } else {
@@ -209,6 +209,7 @@ export const placeOrder = async (req, res) => {
           cartItems.map(async (item) => ({
             menuItem: await menuDB.findById(item.menuItem),
             quantity: item.quantity,
+            customizations: item.customizations || {},
           }))
         );
 

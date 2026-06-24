@@ -9,12 +9,11 @@ const userDB = new DataAccess('User');
 // Generate JWT
 const generateToken = (res, payload, cookieName = "token") => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
-  const isProduction = process.env.NODE_ENV === "production";
   
   res.cookie(cookieName, token, {
     httpOnly: true,
-    secure: isProduction, // Must be true for SameSite='none'
-    sameSite: isProduction ? "none" : "lax", // 'none' required for cross-domain cookies
+    secure: true, // Always true for cross-domain
+    sameSite: "none", // Always 'none' for cross-domain
     maxAge: 24 * 60 * 60 * 1000,
   });
   return token;
@@ -109,9 +108,10 @@ export const loginUser = async (req, res) => {
 
 export const logoutUser = async (req, res) => {
   try {
-    res.clearCookie("token");
-    res.clearCookie("userToken");
-    res.clearCookie("adminToken");
+    const cookieOptions = { httpOnly: true, secure: true, sameSite: "none" };
+    res.clearCookie("token", cookieOptions);
+    res.clearCookie("userToken", cookieOptions);
+    res.clearCookie("adminToken", cookieOptions);
     return res.json({ message: "User logged out successfully", success: true });
   } catch (error) {
     console.log(error.message);
