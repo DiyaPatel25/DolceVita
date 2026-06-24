@@ -31,7 +31,8 @@ app.use(
       "http://localhost:5174", 
       "https://resturant-app-peach.vercel.app",
       "https://dolce-vita.food",
-      "https://www.dolce-vita.food"
+      "https://www.dolce-vita.food",
+      "https://dolce-vita-backend.onrender.com"
     ],
     credentials: true,
   })
