@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import MenuDetails from "./pages/MenuDetails";
 import Contact from "./pages/Contact";
+import SpecialOrders from "./pages/SpecialOrders";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import MyOrders from "./pages/MyOrders";
@@ -19,7 +20,9 @@ import AddMenu from "./pages/admin/AddMenu";
 import Categories from "./pages/admin/Categories";
 import Menus from "./pages/admin/Menus";
 import Orders from "./pages/admin/Orders";
+import PosOrders from "./pages/admin/PosOrders";
 import Dashboard from "./pages/admin/Dashboard";
+import TakeOrder from "./pages/admin/TakeOrder";
 import FloatingCart from "./components/FloatingCart";
 
 const App = () => {
@@ -51,7 +54,8 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/menu-details/:id" element={<MenuDetails />} />
-        <Route path="/contact" element={<Contact />} />
+        <Route path="/contact" element={<SpecialOrders />} />
+        <Route path="/special-orders" element={<SpecialOrders />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/my-orders" element={<MyOrders />} />
@@ -61,11 +65,13 @@ const App = () => {
         {/* Admin routes - all protected by AdminGuard */}
         <Route path="/admin" element={<AdminGuard><AdminLayout /></AdminGuard>}>
           <Route index element={<Dashboard />} />
+          <Route path="take-order" element={<TakeOrder />} />
           <Route path="add-category" element={<AddCategory />} />
           <Route path="add-menu" element={<AddMenu />} />
           <Route path="categories" element={<Categories />} />
           <Route path="menus" element={<Menus />} />
           <Route path="orders" element={<Orders />} />
+          <Route path="pos-orders" element={<PosOrders />} />
         </Route>
       </Routes>
       {!adminPath && <Footer />}

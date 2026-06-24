@@ -22,11 +22,13 @@ const AdminLayout = () => {
 
   const menuItems = [
     { path: "/admin", name: "Dashboard", icon: LayoutDashboard, exact: true },
+    { path: "/admin/take-order", name: "Take Order (POS)", icon: ShoppingCart },
+    { path: "/admin/pos-orders", name: "POS Orders", icon: ShoppingCart },
     { path: "/admin/add-category", name: "Add Category", icon: Plus },
     { path: "/admin/add-menu", name: "Add Menu", icon: Package },
     { path: "/admin/categories", name: "All Categories", icon: Grid3X3 },
     { path: "/admin/menus", name: "All Menus", icon: Sparkles },
-    { path: "/admin/orders", name: "Orders", icon: ShoppingCart },
+    { path: "/admin/orders", name: "Website Orders", icon: ShoppingCart },
   ];
 
   const isActive = (path, exact = false) => {

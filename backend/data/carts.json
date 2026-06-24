@@ -33,10 +33,19 @@
           "updatedAt": "2026-03-07T00:00:00.000Z"
         },
         "quantity": 1
+      },
+      {
+        "menuItem": "tiramisu_tub_1",
+        "quantity": 1,
+        "customizations": {
+          "extraCream": false,
+          "selectedToppings": [],
+          "addOnPrice": 0
+        }
       }
     ],
     "_id": "1776112104656cfcmcmy32",
     "createdAt": "2026-04-13T20:28:24.656Z",
-    "updatedAt": "2026-04-14T20:24:15.398Z"
+    "updatedAt": "2026-06-23T18:32:05.622Z"
   }
 ]

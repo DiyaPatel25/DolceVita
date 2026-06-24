@@ -6,7 +6,7 @@ const Hero = () => {
 
   // Typewriter effect states
   const [displayText, setDisplayText] = useState('');
-  const fullText = 'Welcome you all to Dolce Vita';
+  const fullText = 'Welcome to the Dolce Vita Experience';
 
   // Typewriter effect
   useEffect(() => {
@@ -19,59 +19,74 @@ const Hero = () => {
       } else {
         clearInterval(typeInterval);
       }
-    }, 100);
+    }, 80);
     return () => clearInterval(typeInterval);
   }, []);
 
   // Function to render text with orange "Dolce Vita"
   const renderTypedText = () => {
-    const beforeDolceVita = 'Welcome you all to ';
+    const beforeDolceVita = 'Welcome to the ';
     const dolceVita = 'Dolce Vita';
 
     if (displayText.length <= beforeDolceVita.length) {
       return displayText;
     } else {
+      const rest = displayText.slice(beforeDolceVita.length);
+      const isDolceVitaPart = rest.slice(0, dolceVita.length);
+      const afterDolceVita = rest.slice(dolceVita.length);
+      
       return (
         <>
           {beforeDolceVita}
-          <span className="text-orange-500">
-            {displayText.slice(beforeDolceVita.length)}
+          <span className="text-orange-500 font-extrabold tracking-wider" style={{ textShadow: "0 2px 10px rgba(249,115,22,0.4)" }}>
+            {isDolceVitaPart}
           </span>
+          {afterDolceVita}
         </>
       );
     }
   };
+
   return (
     <section
-      className="relative h-[90vh] flex items-center justify-center bg-center bg-cover"
+      className="relative h-[90vh] flex items-center justify-center bg-center bg-cover bg-fixed"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=80')",
+        backgroundImage: "url('/images/hero-dessert.png')",
       }}
     >
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/60"></div>
+      {/* Premium Overlay Gradient */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#111827]"></div>
+
+      {/* Floating abstract decorative element */}
+      <div className="pointer-events-none absolute top-1/4 right-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
 
       {/* Content */}
-      <div className="relative z-10 text-center text-white px-4">
-        <h1 className="text-4xl md:text-6xl font-bold mb-3">
+      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto glass-panel-dark p-12 rounded-3xl shadow-2xl hover-lift">
+        <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
           {renderTypedText()}
         </h1>
-        <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-          {" "}
-          Experience the taste of perfection — where every bite tells a story.
+        <p className="text-lg md:text-2xl mb-8 text-gray-300 font-light leading-relaxed">
+          Indulge in our exquisite cheesecakes, authentic tiramisu, and decadent brownies.<br/>
+          <span className="text-orange-400 font-medium">Crafted with passion, delivered with love.</span>
         </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
+        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
           <button
             onClick={() => navigate("/menu")}
-            className="cursor-pointer bg-orange-500 hover:bg-orange-600 text-black font-semibold px-6 py-3 rounded-full transition-all duration-300"
+            className="cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] transform hover:-translate-y-1"
           >
-            All Menus
+            Explore the Menu
+          </button>
+          <button
+            onClick={() => navigate("/special-orders")}
+            className="cursor-pointer glass-panel hover:bg-white/10 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 border border-white/20 transform hover:-translate-y-1"
+          >
+            Special Event Orders
           </button>
         </div>
       </div>
     </section>
   );
 };
+
 export default Hero;

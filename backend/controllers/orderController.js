@@ -11,6 +11,7 @@ const orderDB = new DataAccess('Order');
 const cartDB = new DataAccess('Cart');
 const menuDB = new DataAccess('Menu');
 const userDB = new DataAccess('User');
+import Revenue from "../models/revenueModel.js";
 
 // Exported for future payment order/verification endpoints.
 export { razorpay };
@@ -99,7 +100,7 @@ export const verifyPaymentSignature = async (req, res) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const { name, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false } = req.body;
+    const { name, guestName, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false } = req.body;
     const lowStockAlerts = [];
     const stockApplied = [];
 
@@ -260,6 +261,7 @@ export const placeOrder = async (req, res) => {
     try {
       newOrder = await orderDB.create({
         user: userId,
+        guestName: guestName || null,
         items: resolvedItems.map((i) => ({
           menuItem: i.menuItem._id,
           quantity: i.quantity,
@@ -359,15 +361,72 @@ export const getAllOrders = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body;
+    const { status, paymentStatus } = req.body;
     const order = await orderDB.findById(orderId);
     if (!order) return res.status(404).json({ message: "Order not found" });
 
-    await orderDB.findByIdAndUpdate(orderId, { status });
+    const updateData = {};
+    if (status) updateData.status = status;
+    if (paymentStatus) updateData.paymentStatus = paymentStatus;
+    if (req.body.paymentMethod) {
+      updateData.paymentMethod = req.body.paymentMethod;
+      if (req.body.paymentMethod === "Cash" || req.body.paymentMethod === "Online Payment") {
+        updateData.status = "Delivered";
+        updateData.paymentStatus = "Paid";
+      }
+    }
 
-    res.json({ message: "order status updated", success: true });
+    await orderDB.findByIdAndUpdate(orderId, updateData);
+
+    res.json({ message: "order updated", success: true });
   } catch (error) {
     console.log(error);
     return res.json({ message: "Internal server error", success: false });
+  }
+};
+
+export const calculateDailyRevenue = async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const todayOrders = await orderDB.find({
+      createdAt: { $gte: today, $lt: tomorrow },
+      paymentStatus: "Paid"
+    });
+
+    let totalRevenue = 0;
+    let cashRevenue = 0;
+    let onlineRevenue = 0;
+
+    for (let order of todayOrders) {
+      totalRevenue += order.totalAmount;
+      if (order.paymentMethod === "Online Payment") {
+        onlineRevenue += order.totalAmount;
+      } else {
+        cashRevenue += order.totalAmount; // Pay at Counter, Cash, etc.
+      }
+    }
+
+    const dateString = today.toISOString().split('T')[0];
+
+    const revenueRecord = await Revenue.findOneAndUpdate(
+      { date: dateString },
+      {
+        totalRevenue,
+        cashRevenue,
+        onlineRevenue,
+        ordersCount: todayOrders.length
+      },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ success: true, data: revenueRecord });
+  } catch (error) {
+    console.log("Error calculating revenue:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

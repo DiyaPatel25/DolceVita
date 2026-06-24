@@ -9,6 +9,7 @@ import menuRoutes from "./routes/menuRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import bookingRoutes from "./routes/bookingRoutes.js";
 import connectCloudinary from "./config/cloudinary.js";
 import dotenv from "dotenv";
 
@@ -51,6 +52,7 @@ app.use("/api/menu", menuRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/booking", bookingRoutes);
 
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
