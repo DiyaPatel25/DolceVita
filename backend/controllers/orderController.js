@@ -175,7 +175,7 @@ export const placeOrder = async (req, res) => {
       });
     }
 
-    const finalAddress = normalizedOrderType === "Delivery" ? address?.trim() : "Pickup";
+    const finalAddress = address?.trim() === "Stall Order" ? "Stall Order" : (normalizedOrderType === "Delivery" ? address?.trim() : "Pickup");
     if (normalizedOrderType === "Delivery" && !finalAddress) {
       return res.status(400).json({ success: false, message: "Delivery address is required." });
     }

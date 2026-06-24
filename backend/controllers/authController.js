@@ -9,10 +9,12 @@ const userDB = new DataAccess('User');
 // Generate JWT
 const generateToken = (res, payload, cookieName = "token") => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
+  const isProduction = process.env.NODE_ENV === "production";
+  
   res.cookie(cookieName, token, {
     httpOnly: true,
-    secure: false, // Allow HTTP in development
-    sameSite: "lax", // Allow cookies with cross-site requests in development
+    secure: isProduction, // Must be true for SameSite='none'
+    sameSite: isProduction ? "none" : "lax", // 'none' required for cross-domain cookies
     maxAge: 24 * 60 * 60 * 1000,
   });
   return token;

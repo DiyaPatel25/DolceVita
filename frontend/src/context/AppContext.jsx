@@ -174,18 +174,9 @@ const AppContextProvider = ({ children }) => {
     fetchMenus();
     fetchCartData();
 
-    const handleFocus = () => {
-      isAuth();
-      fetchCartData();
-    };
-
-    window.addEventListener("focus", handleFocus);
-    document.addEventListener("visibilitychange", handleFocus);
-
+    // Remove aggressive focus event listeners that cause infinite refresh loops on mobile/PWA
     return () => {
       isMounted = false;
-      window.removeEventListener("focus", handleFocus);
-      document.removeEventListener("visibilitychange", handleFocus);
     };
   }, []);
   const value = {
