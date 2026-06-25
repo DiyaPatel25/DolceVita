@@ -160,17 +160,24 @@ const TakeOrder = () => {
               <div 
                 key={menu._id}
                 onClick={() => handleMenuClick(menu)}
-                className="bg-white border border-gray-100 rounded-xl p-3 cursor-pointer hover:border-orange-400 hover:shadow-md transition-all flex items-center gap-4 group"
+                className="bg-white border border-gray-100 rounded-xl p-3 cursor-pointer hover:border-orange-400 hover:shadow-md transition-all flex items-center justify-between gap-3 group relative"
               >
-                <img src={menu.image} alt={menu.name} className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover shrink-0" />
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 pr-2">
                   <h3 className="font-bold text-gray-800 text-sm sm:text-base truncate group-hover:text-orange-600 transition-colors">{menu.name}</h3>
-                  <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{menu.description}</p>
-                  <p className="text-orange-500 font-black mt-1">₹{menu.price}</p>
+                  <p className="text-xs text-gray-500 line-clamp-2 mt-0.5 leading-relaxed">{menu.description}</p>
+                  <p className="text-orange-500 font-black mt-1.5 text-sm sm:text-base">₹{menu.price}</p>
                 </div>
-                <button className="w-8 h-8 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 group-hover:bg-orange-500 group-hover:text-white transition-colors">
-                  <Plus className="w-5 h-5" />
-                </button>
+
+                <div className="relative w-24 sm:w-28 shrink-0 pb-3">
+                  <div className="w-24 sm:w-28 h-20 sm:h-22 rounded-xl overflow-hidden bg-gray-50 shadow-sm border border-gray-100">
+                    <img src={menu.image} alt={menu.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-10 w-20 sm:w-22">
+                    <button type="button" className="w-full py-1 bg-white text-orange-600 hover:bg-orange-50 font-black text-[11px] uppercase rounded-lg shadow border border-orange-200 flex items-center justify-center gap-0.5 group-hover:bg-orange-500 group-hover:text-white transition-all">
+                      ADD <Plus className="w-3 h-3 inline" />
+                    </button>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
