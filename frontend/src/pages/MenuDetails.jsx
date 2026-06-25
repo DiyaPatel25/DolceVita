@@ -76,17 +76,10 @@ const MenuDetails = () => {
                 />
                 {/* Availability Badge */}
                 <div className="absolute top-6 right-6">
-                  {menu.isAvailable ? (
-                    <div className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2 font-semibold shadow-lg">
-                      <CheckCircle className="w-5 h-5" />
-                      <span>Available</span>
-                    </div>
-                  ) : (
-                    <div className="bg-red-500 text-white px-4 py-2 rounded-full flex items-center gap-2 font-semibold shadow-lg">
-                      <XCircle className="w-5 h-5" />
-                      <span>Unavailable</span>
-                    </div>
-                  )}
+                  <div className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2 font-semibold shadow-lg">
+                    <CheckCircle className="w-5 h-5" />
+                    <span>Available</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -119,15 +112,11 @@ const MenuDetails = () => {
             <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-6 shadow-xl">
               {quantity === 0 ? (
                 <button
-                  disabled={!menu.isAvailable}
                   onClick={() => addToCart(menu._id)}
-                  className={`cursor-pointer w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 ${menu.isAvailable
-                    ? "bg-white text-yellow-600 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-lg"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }`}
+                  className="cursor-pointer w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 bg-white text-yellow-600 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-lg"
                 >
                   <ShoppingCart className="w-6 h-6" />
-                  {menu.isAvailable ? "Add to Cart" : "Unavailable"}
+                  Add to Cart
                 </button>
               ) : (
                 <div className="space-y-4">
@@ -145,12 +134,8 @@ const MenuDetails = () => {
                       {quantity}
                     </span>
                     <button
-                      disabled={!menu.isAvailable}
                       onClick={() => addToCart(menu._id)}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${menu.isAvailable
-                        ? "bg-white text-yellow-600 hover:bg-gray-50"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        }`}
+                      className="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-white text-yellow-600 hover:bg-gray-50 cursor-pointer"
                     >
                       <Plus className="w-5 h-5" />
                     </button>

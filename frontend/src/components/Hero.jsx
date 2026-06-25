@@ -55,7 +55,7 @@ const Hero = () => {
       }}
     >
       {/* Premium Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-[#111827]"></div>
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#111827]/90"></div>
 
       {/* Floating abstract decorative element */}
       <div className="pointer-events-none absolute top-1/4 right-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>

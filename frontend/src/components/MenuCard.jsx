@@ -48,20 +48,14 @@ const MenuCard = ({ menu }) => {
         <div className="relative w-28 shrink-0 pb-3.5">
           <div onClick={() => navigate(`/menu-details/${menu._id}`)} className="w-28 h-24 rounded-xl overflow-hidden cursor-pointer relative shadow-sm bg-gray-50 dark:bg-gray-800">
             <img src={menu.image} alt={menu.name} className="w-full h-full object-cover" />
-            {!menu.isAvailable && (
-              <div className="absolute inset-0 bg-black/60 flex items-center justify-center p-1 text-center">
-                <span className="text-[10px] font-bold text-white bg-red-500 px-1.5 py-0.5 rounded">Sold Out</span>
-              </div>
-            )}
           </div>
 
           <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-10 w-24">
             {quantity === 0 ? (
               <button
                 onClick={handleAddClick}
-                disabled={!menu.isAvailable}
-                className={`w-full py-1.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-md border border-orange-200 dark:border-orange-800 transition-all flex items-center justify-center gap-1
-                  ${menu.isAvailable ? "bg-white dark:bg-gray-900 text-orange-600 dark:text-orange-400 hover:bg-orange-50 active:scale-95" : "bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed border-transparent"}`}
+                className="w-full py-1.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-md border transition-all flex items-center justify-center gap-1 hover:opacity-90 active:scale-95 cursor-pointer"
+                style={{ backgroundColor: 'var(--card-bg)', color: '#ea580c', borderColor: '#fdba74' }}
               >
                 {menu.isCustomizable ? "ADD +" : "ADD"}
               </button>
@@ -85,12 +79,6 @@ const MenuCard = ({ menu }) => {
             alt={menu.name}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
-          {/* Availability badge */}
-          {!menu.isAvailable && (
-            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-semibold">Unavailable</span>
-            </div>
-          )}
           {quantity > 0 && (
             <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-orange-500 text-white text-sm font-bold flex items-center justify-center shadow-lg">
               {quantity}
@@ -109,11 +97,7 @@ const MenuCard = ({ menu }) => {
             {quantity === 0 ? (
               <button
                 onClick={handleAddClick}
-                disabled={!menu.isAvailable}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300
-                  ${menu.isAvailable
-                    ? "bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 hover:shadow-md active:scale-95"
-                    : "bg-gray-200 text-gray-400 cursor-not-allowed"}`}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 hover:shadow-md active:scale-95"
               >
                 <ShoppingCart className="w-3.5 h-3.5" />
                 {menu.isCustomizable ? "Customize" : "Add"}

@@ -15,6 +15,11 @@ const PosOrders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
+  const [revenueStats, setRevenueStats] = useState(null);
+  const [calculating, setCalculating] = useState(false);
+  const [pastRevenues, setPastRevenues] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const fetchPosOrders = async () => {
     try {
@@ -74,6 +79,42 @@ const PosOrders = () => {
     }
   };
 
+  const calculateRevenue = async () => {
+    try {
+      setCalculating(true);
+      const { data } = await axios.get("/api/order/calculate-revenue");
+      if (data.success) {
+        setRevenueStats(data.data);
+        toast.success("Revenue calculated & saved!");
+      } else {
+        toast.error("Failed to calculate revenue");
+      }
+    } catch (error) {
+      toast.error("Error calculating revenue");
+    } finally {
+      setCalculating(false);
+    }
+  };
+
+  const fetchHistory = async () => {
+    if (showHistory) {
+      setShowHistory(false);
+      return;
+    }
+    try {
+      setLoadingHistory(true);
+      const { data } = await axios.get("/api/order/revenues");
+      if (data.success) {
+        setPastRevenues(data.data);
+        setShowHistory(true);
+      }
+    } catch (error) {
+      toast.error("Failed to load analytics");
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
   useEffect(() => { if (admin) fetchPosOrders(); }, [admin]);
 
   if (loading) {
@@ -89,10 +130,87 @@ const PosOrders = () => {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-black text-gray-800">POS Orders</h1>
-        <p className="text-gray-500 text-sm mt-1">{orders.length} total POS order{orders.length !== 1 ? "s" : ""}</p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-gray-800">POS Orders</h1>
+          <p className="text-gray-500 text-sm mt-1">{orders.length} total POS order{orders.length !== 1 ? "s" : ""}</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button 
+            onClick={fetchHistory}
+            disabled={loadingHistory}
+            className="px-4 py-2 bg-purple-50 text-purple-700 font-bold rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+          >
+            {loadingHistory ? "Loading..." : (showHistory ? "Hide Analytics" : "📊 Past Days Analytics")}
+          </button>
+          <button 
+            onClick={calculateRevenue}
+            disabled={calculating}
+            className="px-4 py-2 bg-green-50 text-green-700 font-bold rounded-lg border border-green-200 hover:bg-green-100 transition-colors shadow-sm cursor-pointer"
+          >
+            {calculating ? "Calculating..." : "Calculate Today's Revenue"}
+          </button>
+        </div>
       </div>
+
+      {showHistory && (
+        <div className="mb-8 bg-white p-6 rounded-2xl border border-purple-100 shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+              📊 Daily Revenue History
+            </h3>
+            <span className="text-xs bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-full">
+              {pastRevenues.length} Days Recorded
+            </span>
+          </div>
+          {pastRevenues.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">No historical revenue data found yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase font-bold">
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Orders</th>
+                    <th className="py-3 px-4 text-orange-600">Cash</th>
+                    <th className="py-3 px-4 text-blue-600">Online</th>
+                    <th className="py-3 px-4 text-green-600">Total Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-sm font-semibold text-gray-700">
+                  {pastRevenues.map((rev) => (
+                    <tr key={rev._id || rev.date} className="hover:bg-gray-50/50">
+                      <td className="py-3 px-4 font-bold text-gray-900">{rev.date}</td>
+                      <td className="py-3 px-4">{rev.ordersCount}</td>
+                      <td className="py-3 px-4 text-orange-600">₹{rev.cashRevenue}</td>
+                      <td className="py-3 px-4 text-blue-600">₹{rev.onlineRevenue}</td>
+                      <td className="py-3 px-4 font-black text-green-600 text-base">₹{rev.totalRevenue}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {revenueStats && (
+        <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm">
+            <p className="text-xs text-gray-500 uppercase font-bold tracking-wide">Total Revenue (Today)</p>
+            <p className="text-3xl font-black text-gray-800 mt-2">₹{revenueStats.totalRevenue}</p>
+            <p className="text-xs text-gray-400 mt-1">{revenueStats.ordersCount} paid orders</p>
+          </div>
+          <div className="bg-orange-50 p-5 rounded-2xl border border-orange-100 shadow-sm">
+            <p className="text-xs text-orange-600/70 uppercase font-bold tracking-wide">Cash Revenue</p>
+            <p className="text-3xl font-black text-orange-600 mt-2">₹{revenueStats.cashRevenue}</p>
+          </div>
+          <div className="bg-blue-50 p-5 rounded-2xl border border-blue-100 shadow-sm">
+            <p className="text-xs text-blue-600/70 uppercase font-bold tracking-wide">Online Revenue</p>
+            <p className="text-3xl font-black text-blue-600 mt-2">₹{revenueStats.onlineRevenue}</p>
+          </div>
+        </div>
+      )}
 
       {orders.length === 0 ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-16 text-center">

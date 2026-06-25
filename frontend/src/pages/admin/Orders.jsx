@@ -20,6 +20,9 @@ const Orders = () => {
   
   const [revenueStats, setRevenueStats] = useState(null);
   const [calculating, setCalculating] = useState(false);
+  const [pastRevenues, setPastRevenues] = useState([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [loadingHistory, setLoadingHistory] = useState(false);
 
   const fetchOrders = async () => {
     try {
@@ -116,14 +119,71 @@ const Orders = () => {
           <h1 className="text-2xl font-black text-gray-800">Orders</h1>
           <p className="text-gray-500 text-sm mt-1">{orders.length} total order{orders.length !== 1 ? "s" : ""}</p>
         </div>
-        <button 
-          onClick={calculateRevenue}
-          disabled={calculating}
-          className="px-4 py-2 bg-green-50 text-green-700 font-bold rounded-lg border border-green-200 hover:bg-green-100 transition-colors shadow-sm"
-        >
-          {calculating ? "Calculating..." : "Calculate Today's Revenue"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button 
+            onClick={async () => {
+              if (showHistory) { setShowHistory(false); return; }
+              try {
+                setLoadingHistory(true);
+                const { data } = await axios.get("/api/order/revenues");
+                if (data.success) { setPastRevenues(data.data); setShowHistory(true); }
+              } catch (e) { toast.error("Failed to load analytics"); } finally { setLoadingHistory(false); }
+            }}
+            disabled={loadingHistory}
+            className="px-4 py-2 bg-purple-50 text-purple-700 font-bold rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
+          >
+            {loadingHistory ? "Loading..." : (showHistory ? "Hide Analytics" : "📊 Past Days Analytics")}
+          </button>
+          <button 
+            onClick={calculateRevenue}
+            disabled={calculating}
+            className="px-4 py-2 bg-green-50 text-green-700 font-bold rounded-lg border border-green-200 hover:bg-green-100 transition-colors shadow-sm cursor-pointer"
+          >
+            {calculating ? "Calculating..." : "Calculate Today's Revenue"}
+          </button>
+        </div>
       </div>
+
+      {showHistory && (
+        <div className="mb-8 bg-white p-6 rounded-2xl border border-purple-100 shadow-md">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-black text-gray-800 flex items-center gap-2">
+              📊 Daily Revenue History
+            </h3>
+            <span className="text-xs bg-purple-100 text-purple-800 font-bold px-2.5 py-1 rounded-full">
+              {pastRevenues.length} Days Recorded
+            </span>
+          </div>
+          {pastRevenues.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-6">No historical revenue data found yet.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-gray-100 text-xs text-gray-400 uppercase font-bold">
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Orders</th>
+                    <th className="py-3 px-4 text-orange-600">Cash</th>
+                    <th className="py-3 px-4 text-blue-600">Online</th>
+                    <th className="py-3 px-4 text-green-600">Total Revenue</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-sm font-semibold text-gray-700">
+                  {pastRevenues.map((rev) => (
+                    <tr key={rev._id || rev.date} className="hover:bg-gray-50/50">
+                      <td className="py-3 px-4 font-bold text-gray-900">{rev.date}</td>
+                      <td className="py-3 px-4">{rev.ordersCount}</td>
+                      <td className="py-3 px-4 text-orange-600">₹{rev.cashRevenue}</td>
+                      <td className="py-3 px-4 text-blue-600">₹{rev.onlineRevenue}</td>
+                      <td className="py-3 px-4 font-black text-green-600 text-base">₹{rev.totalRevenue}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {revenueStats && (
         <div className="mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4">

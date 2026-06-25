@@ -481,3 +481,21 @@ export const calculateDailyRevenue = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getAllRevenues = async (req, res) => {
+  try {
+    let revenues = [];
+    if (isMongoDBConnected()) {
+      const Revenue = (await import("../models/revenueModel.js")).default;
+      revenues = await Revenue.find().sort({ date: -1 });
+    } else {
+      revenues = (await revenueDB.find()) || [];
+      revenues.sort((a, b) => (b.date > a.date ? 1 : -1));
+    }
+    res.status(200).json({ success: true, data: revenues });
+  } catch (error) {
+    console.log("Error fetching revenues:", error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+

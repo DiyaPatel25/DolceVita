@@ -68,17 +68,17 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Item Image and Info */}
-          <div className="flex gap-4">
+          <div className="flex items-center justify-between gap-4 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+            <div className="flex-1 min-w-0 pr-2">
+              <h3 className="text-base sm:text-xl font-bold truncate" style={{ color: 'var(--text-color)' }}>{item.name}</h3>
+              <p className="text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{item.description}</p>
+              <p className="text-lg sm:text-2xl font-black text-orange-500 mt-2 sm:mt-3">₹{item.price}</p>
+            </div>
             <img
               src={item.image}
               alt={item.name}
-              className="w-32 h-32 rounded-2xl object-cover shadow-md"
+              className="w-24 h-20 sm:w-32 sm:h-32 rounded-xl sm:rounded-2xl object-cover shadow-md shrink-0"
             />
-            <div className="flex-1">
-              <h3 className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>{item.name}</h3>
-              <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{item.description}</p>
-              <p className="text-2xl font-bold text-orange-600 mt-3">₹{item.price}</p>
-            </div>
           </div>
 
           {/* Extra Cream Toggle */}
