@@ -6,7 +6,6 @@ import Category from '../models/categoryModel.js';
 import Menu from '../models/menuModel.js';
 import Cart from '../models/cartModel.js';
 import Order from '../models/orderModel.js';
-import Booking from '../models/bookingModel.js';
 
 // Model mapping
 const modelMap = {
@@ -14,8 +13,7 @@ const modelMap = {
   Category,
   Menu,
   Cart,
-  Order,
-  Booking
+  Order
 };
 
 // Local storage instances
@@ -24,8 +22,7 @@ const localStorageMap = {
   Category: new LocalStorage('categories'),
   Menu:     new LocalStorage('menus'),
   Cart:     new LocalStorage('carts'),
-  Order:    new LocalStorage('orders'),
-  Booking:  new LocalStorage('bookings')
+  Order:    new LocalStorage('orders')
 };
 
 class DataAccess {

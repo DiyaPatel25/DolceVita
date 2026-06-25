@@ -11,7 +11,7 @@ const orderDB = new DataAccess('Order');
 const cartDB = new DataAccess('Cart');
 const menuDB = new DataAccess('Menu');
 const userDB = new DataAccess('User');
-import Revenue from "../models/revenueModel.js";
+const revenueDB = new DataAccess('Revenue');
 
 // Exported for future payment order/verification endpoints.
 export { razorpay };
@@ -85,6 +85,10 @@ export const verifyPaymentSignature = async (req, res) => {
       });
     }
 
+    // Store verified payment in memory (for production use redis or DB)
+    if (!global.verifiedPayments) global.verifiedPayments = new Set();
+    global.verifiedPayments.add(razorpay_order_id);
+
     return res.status(200).json({
       success: true,
       message: "Payment verified successfully",
@@ -100,7 +104,7 @@ export const verifyPaymentSignature = async (req, res) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const { name, guestName, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false } = req.body;
+    const { name, guestName, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false, razorpay_order_id } = req.body;
     const lowStockAlerts = [];
     const stockApplied = [];
 
@@ -161,11 +165,23 @@ export const placeOrder = async (req, res) => {
     const normalizedOrderType = orderType === "Delivery" ? "Delivery" : "Pickup";
     const normalizedPaymentMethod = paymentMethod === "Online Payment" ? "Online Payment" : "Pay at Counter";
 
-    if (normalizedPaymentMethod === "Online Payment" && !paymentVerified) {
-      return res.status(400).json({
-        success: false,
-        message: "Online payment must be verified before placing order",
-      });
+    if (normalizedPaymentMethod === "Online Payment") {
+      if (!paymentVerified) {
+        return res.status(400).json({
+          success: false,
+          message: "Online payment must be verified before placing order",
+        });
+      }
+      
+      // Prevent TOCTOU bypass by verifying the exact razorpay_order_id on the server
+      if (!global.verifiedPayments || !global.verifiedPayments.has(razorpay_order_id)) {
+         return res.status(400).json({
+          success: false,
+          message: "Payment verification token is invalid or expired. Please contact support.",
+        });
+      }
+      // Consume the token
+      global.verifiedPayments.delete(razorpay_order_id);
     }
 
     if (normalizedOrderType === "Delivery" && normalizedPaymentMethod !== "Online Payment") {
@@ -394,10 +410,21 @@ export const calculateDailyRevenue = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todayOrders = await orderDB.find({
-      createdAt: { $gte: today, $lt: tomorrow },
-      paymentStatus: "Paid"
-    });
+    // For DataAccess compatibility, we may need to filter locally if not using MongoDB
+    let todayOrders = [];
+    if (isMongoDBConnected()) {
+      todayOrders = await orderDB.find({
+        createdAt: { $gte: today, $lt: tomorrow },
+        paymentStatus: "Paid"
+      });
+    } else {
+      const allOrders = await orderDB.find();
+      todayOrders = allOrders.filter(o => {
+        if (o.paymentStatus !== "Paid" || !o.createdAt) return false;
+        const d = new Date(o.createdAt);
+        return d >= today && d < tomorrow;
+      });
+    }
 
     let totalRevenue = 0;
     let cashRevenue = 0;
@@ -414,16 +441,39 @@ export const calculateDailyRevenue = async (req, res) => {
 
     const dateString = today.toISOString().split('T')[0];
 
-    const revenueRecord = await Revenue.findOneAndUpdate(
-      { date: dateString },
-      {
-        totalRevenue,
-        cashRevenue,
-        onlineRevenue,
-        ordersCount: todayOrders.length
-      },
-      { new: true, upsert: true }
-    );
+    let revenueRecord;
+    
+    if (isMongoDBConnected()) {
+        const Revenue = (await import("../models/revenueModel.js")).default;
+        revenueRecord = await Revenue.findOneAndUpdate(
+          { date: dateString },
+          {
+            totalRevenue,
+            cashRevenue,
+            onlineRevenue,
+            ordersCount: todayOrders.length
+          },
+          { new: true, upsert: true }
+        );
+    } else {
+        const allRevenues = await revenueDB.find() || [];
+        revenueRecord = allRevenues.find(r => r.date === dateString);
+        if (revenueRecord) {
+           revenueRecord.totalRevenue = totalRevenue;
+           revenueRecord.cashRevenue = cashRevenue;
+           revenueRecord.onlineRevenue = onlineRevenue;
+           revenueRecord.ordersCount = todayOrders.length;
+           await revenueDB.findByIdAndUpdate(revenueRecord._id, revenueRecord);
+        } else {
+           revenueRecord = await revenueDB.create({
+              date: dateString,
+              totalRevenue,
+              cashRevenue,
+              onlineRevenue,
+              ordersCount: todayOrders.length
+           });
+        }
+    }
 
     res.status(200).json({ success: true, data: revenueRecord });
   } catch (error) {

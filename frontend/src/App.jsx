@@ -2,7 +2,6 @@ import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Menu from "./pages/Menu";
 import MenuDetails from "./pages/MenuDetails";
-import Contact from "./pages/Contact";
 import SpecialOrders from "./pages/SpecialOrders";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -54,7 +53,6 @@ const App = () => {
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/menu-details/:id" element={<MenuDetails />} />
-        <Route path="/contact" element={<SpecialOrders />} />
         <Route path="/special-orders" element={<SpecialOrders />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />

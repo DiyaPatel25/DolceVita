@@ -6,6 +6,15 @@ import sendWelcomeEmail from "../emailService.js";
 // Initialize data access for User
 const userDB = new DataAccess('User');
 
+// Cache admin password hash
+let hashedAdminPassword = null;
+const getHashedAdminPassword = async () => {
+  if (!hashedAdminPassword) {
+    hashedAdminPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || "admin123", 10);
+  }
+  return hashedAdminPassword;
+};
+
 // Generate JWT
 const generateToken = (res, payload, cookieName = "token") => {
   const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
@@ -52,16 +61,20 @@ export const loginUser = async (req, res) => {
     }
 
     const adminEmail = process.env.ADMIN_EMAIL;
-    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    if (email === adminEmail && password === adminPassword) {
-      generateToken(res, { email, role: "admin" }, "adminToken");
-      return res.json({
-        message: "Admin logged in successfully",
-        success: true,
-        user: { name: "Admin User", email: adminEmail },
-        admin: true
-      });
+    if (email === adminEmail) {
+      const adminHash = await getHashedAdminPassword();
+      const isAdminMatch = await bcrypt.compare(password, adminHash);
+      if (isAdminMatch) {
+        generateToken(res, { email, role: "admin" }, "adminToken");
+        return res.json({
+          message: "Admin logged in successfully",
+          success: true,
+          user: { name: "Admin User", email: adminEmail },
+          admin: true
+        });
+      }
+      return res.status(400).json({ message: "Invalid credentials", success: false });
     }
 
     const user = await userDB.findOne({ email });
@@ -127,7 +140,8 @@ export const getProfile = async (req, res) => {
         .status(404)
         .json({ message: "User not found", success: false });
     }
-    const { password, ...userWithoutPassword } = user;
+    const userObj = user.toObject ? user.toObject() : user;
+    const { password, ...userWithoutPassword } = userObj;
     res.json(userWithoutPassword);
   } catch (error) {
     return res.json({ message: "Internal server error", success: false });
@@ -146,7 +160,8 @@ export const isAuth = async (req, res) => {
     }
     const user = await userDB.findById(id);
     if (!user) return res.json({ success: false, message: "User not found" });
-    const { password, ...userWithoutPassword } = user;
+    const userObj = user.toObject ? user.toObject() : user;
+    const { password, ...userWithoutPassword } = userObj;
     res.json({ success: true, user: userWithoutPassword, admin: false });
   } catch (error) {
     return res.json({ message: "Internal server error", success: false });

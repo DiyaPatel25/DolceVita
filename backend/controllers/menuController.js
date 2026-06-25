@@ -1,6 +1,7 @@
 import DataAccess from "../config/dataAccess.js";
 import { v2 as cloudinary } from "cloudinary";
 import { isMongoDBConnected } from "../config/db.js";
+import fs from "fs";
 
 // Initialize data access for Menu and Category
 const menuDB = new DataAccess('Menu');
@@ -13,10 +14,19 @@ const uploadImageToCloudinary = async (filePath) => {
   return result.secure_url;
 };
 
+const cleanupTempFile = (filePath) => {
+  if (filePath) {
+    fs.unlink(filePath, (err) => {
+      if (err) console.error("Error cleaning up temp file:", err);
+    });
+  }
+};
+
 export const addMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, image, countInStock, lowStockThreshold } = req.body;
     const uploadedImage = req.file ? await uploadImageToCloudinary(req.file.path) : image;
+    if (req.file) cleanupTempFile(req.file.path);
 
     if (!name || !description || !price || !category || !uploadedImage) {
       return res
@@ -97,6 +107,7 @@ export const updateMenuItem = async (req, res) => {
     const updateData = {};
     if (req.file) {
       updateData.image = await uploadImageToCloudinary(req.file.path);
+      cleanupTempFile(req.file.path);
     } else if (image) {
       updateData.image = image;
     }
@@ -122,6 +133,9 @@ export const deleteMenuItem = async (req, res) => {
   try {
     const { id } = req.params;
     const menuItem = await menuDB.findByIdAndDelete(id);
+    if (!menuItem) {
+      return res.status(404).json({ success: false, message: "Menu item not found" });
+    }
     res.status(200).json({ success: true, message: "Menu item deleted" });
   } catch (error) {
     console.log(error);

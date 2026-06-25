@@ -40,9 +40,9 @@ const Signup = () => {
     <div className="min-h-screen py-12 flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)' }}>
       <form
         onSubmit={handleSubmit}
-        className="w-full sm:w-[350px] text-center border rounded-2xl px-8"
+        className="w-full sm:w-[350px] text-center rounded-3xl px-8 shadow-2xl backdrop-blur-sm"
         style={{
-          borderColor: 'var(--border-color)',
+          border: '1px solid var(--border-color)',
           backgroundColor: 'var(--card-bg)'
         }}
       >
@@ -53,13 +53,14 @@ const Signup = () => {
           Please sign up to continue
         </p>
 
-        <div className="flex items-center w-full mt-4 bg-white dark:bg-zinc-800 border border-zinc-300/80 dark:border-zinc-700 h-12 rounded-full overflow-hidden pl-6 gap-2">
+        <div className="flex items-center w-full mt-4 h-12 rounded-full overflow-hidden pl-6 gap-2" style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)' }}>
           {/* User Icon */}
-          <User2Icon className="text-white" />
+          <User2Icon style={{ color: 'var(--text-secondary)' }} />
           <input
             type="text"
             placeholder="Name"
-            className="bg-transparent text-zinc-600 dark:text-zinc-200 placeholder-zinc-500 dark:placeholder-zinc-400 outline-none text-sm w-full h-full"
+            className="bg-transparent outline-none text-sm w-full h-full"
+            style={{ color: 'var(--text-color)' }}
             name="name"
             value={formData.name}
             onChange={onChangeHandler}
@@ -67,13 +68,14 @@ const Signup = () => {
           />
         </div>
 
-        <div className="flex items-center w-full mt-4 bg-white dark:bg-zinc-800 border border-zinc-300/80 dark:border-zinc-700 h-12 rounded-full overflow-hidden pl-6 gap-2">
+        <div className="flex items-center w-full mt-4 h-12 rounded-full overflow-hidden pl-6 gap-2" style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)' }}>
           {/* Mail Icon */}
-          <MailIcon className="text-white" />
+          <MailIcon style={{ color: 'var(--text-secondary)' }} />
           <input
             type="email"
             placeholder="Email id"
-            className="bg-transparent text-zinc-600 dark:text-zinc-200 placeholder-zinc-500 dark:placeholder-zinc-400 outline-none text-sm w-full h-full"
+            className="bg-transparent outline-none text-sm w-full h-full"
+            style={{ color: 'var(--text-color)' }}
             name="email"
             value={formData.email}
             onChange={onChangeHandler}
@@ -81,13 +83,14 @@ const Signup = () => {
           />
         </div>
 
-        <div className="flex items-center mt-4 w-full bg-white dark:bg-zinc-800 border border-zinc-300/80 dark:border-zinc-700 h-12 rounded-full overflow-hidden pl-6 gap-2">
+        <div className="flex items-center mt-4 w-full h-12 rounded-full overflow-hidden pl-6 gap-2" style={{ backgroundColor: 'var(--bg-color)', border: '1px solid var(--border-color)' }}>
           {/* Lock Icon */}
-          <LockIcon className="text-white" />
+          <LockIcon style={{ color: 'var(--text-secondary)' }} />
           <input
             type="password"
             placeholder="Password"
-            className="bg-transparent text-zinc-600 dark:text-zinc-200 placeholder-zinc-500 dark:placeholder-zinc-400 outline-none text-sm w-full h-full"
+            className="bg-transparent outline-none text-sm w-full h-full"
+            style={{ color: 'var(--text-color)' }}
             name="password"
             value={formData.password}
             onChange={onChangeHandler}
@@ -102,9 +105,9 @@ const Signup = () => {
           {loading ? "Loading..." : "Register"}
         </button>
 
-        <p className="text-zinc-500 dark:text-zinc-400 text-sm mt-3 mb-11">
+        <p className="text-sm mt-3 mb-11" style={{ color: 'var(--text-secondary)' }}>
           Already have an account?
-          <Link to={"/login"} className="text-indigo-500 dark:text-indigo-400">
+          <Link to={"/login"} className="ml-1" style={{ color: 'var(--primary-color, #f97316)' }}>
             Login
           </Link>
         </p>

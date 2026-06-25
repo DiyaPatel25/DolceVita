@@ -1,6 +1,12 @@
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
-dotenv.config();
+const escapeHtml = (unsafe) => {
+  return String(unsafe)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
 
 const sendWelcomeEmail = async (userEmail, userName) => {
     try {
@@ -25,7 +31,7 @@ const sendWelcomeEmail = async (userEmail, userName) => {
                     </div>
                     
                     <div style="padding: 40px; line-height: 1.8; color: #444;">
-                        <h2 style="color: #333;">Hello, ${userName}!</h2>
+                        <h2 style="color: #333;">Hello, ${escapeHtml(userName)}!</h2>
                         <p>We are absolutely thrilled to welcome you to the <strong>Dolce Vita</strong> family.</p>
                         
                         <p>At Dolce Vita, we believe life is too short for average desserts. Whether you are craving our signature <strong>Lotus Biscoff Cheesecake</strong>, our creamy <strong>Tiramisu</strong>, or our specialty <strong>Donuts</strong>, we have something to make your day a little sweeter.</p>

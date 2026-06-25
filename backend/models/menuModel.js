@@ -28,7 +28,7 @@ const menuSchema=new mongoose.Schema({
     },
     countInStock: {
       type: Number,
-      default: 0,
+      default: 20,
       min: 0,
     },
     lowStockThreshold: {

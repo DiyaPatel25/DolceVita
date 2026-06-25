@@ -1,7 +1,7 @@
 import { useContext, useMemo, useState } from "react";
 import { AppContext } from "../context/AppContext";
 import toast from "react-hot-toast";
-import { ShoppingBag, User, Mail, Lock, CheckCircle, Home, Truck, CreditCard } from "lucide-react";
+import { ShoppingBag, User, Mail, Lock, CheckCircle, Home, Store, CreditCard } from "lucide-react";
 
 const Checkout = () => {
   const { totalPrice, cart, axios, navigate, user, setUser, setCart } = useContext(AppContext);
@@ -186,15 +186,15 @@ const Checkout = () => {
         <div className="rounded-2xl border shadow-sm mb-6 p-5" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
           <p className="font-bold text-sm mb-3" style={{ color: 'var(--text-color)' }}>Order Type</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${orderType === "Pickup" ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-transparent"}`}>
+            <label className="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all" style={{ borderColor: orderType === "Pickup" ? '#fb923c' : 'var(--border-color)', backgroundColor: orderType === "Pickup" ? 'rgba(251, 146, 60, 0.1)' : 'var(--card-bg)' }}>
               <input type="radio" name="orderType" value="Pickup" checked={orderType === "Pickup"} onChange={(e) => { setOrderType(e.target.value); setPaymentMethod("Pay at Counter"); }} />
-              <Truck className="w-5 h-5 text-orange-500" />
+              <Store className="w-5 h-5 text-orange-500" />
               <div>
                 <p className="font-semibold" style={{ color: 'var(--text-color)' }}>Pickup</p>
                 <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Collect from counter</p>
               </div>
             </label>
-            <label className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${orderType === "Delivery" ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-transparent"}`}>
+            <label className="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all" style={{ borderColor: orderType === "Delivery" ? '#fb923c' : 'var(--border-color)', backgroundColor: orderType === "Delivery" ? 'rgba(251, 146, 60, 0.1)' : 'var(--card-bg)' }}>
               <input type="radio" name="orderType" value="Delivery" checked={orderType === "Delivery"} onChange={(e) => { setOrderType(e.target.value); setPaymentMethod("Online Payment"); }} />
               <Home className="w-5 h-5 text-orange-500" />
               <div>
@@ -219,9 +219,9 @@ const Checkout = () => {
                   <img src={m.image} alt={m.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-sm truncate" style={{ color: 'var(--text-color)' }}>{m.name}</p>
-                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>₹{m.price} × {item.quantity}</p>
+                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>₹{m.price + (item.customizations?.addOnPrice || 0)} × {item.quantity}</p>
                   </div>
-                  <p className="font-bold text-sm" style={{ color: 'var(--text-color)' }}>₹{m.price * item.quantity}</p>
+                  <p className="font-bold text-sm" style={{ color: 'var(--text-color)' }}>₹{(m.price + (item.customizations?.addOnPrice || 0)) * item.quantity}</p>
                 </div>
               );
             })}
@@ -253,7 +253,7 @@ const Checkout = () => {
           <p className="font-bold text-sm mb-3" style={{ color: 'var(--text-color)' }}>Payment Method</p>
           <div className="space-y-3">
             {availablePaymentMethods.map(({ value, label, icon: Icon }) => (
-              <label key={value} className={`flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all ${paymentMethod === value ? "border-orange-400 bg-orange-50" : "border-gray-200 bg-transparent"}`}>
+              <label key={value} className="flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all" style={{ borderColor: paymentMethod === value ? '#fb923c' : 'var(--border-color)', backgroundColor: paymentMethod === value ? 'rgba(251, 146, 60, 0.1)' : 'var(--card-bg)' }}>
                 <input type="radio" name="paymentMethod" value={value} checked={paymentMethod === value} onChange={(e) => setPaymentMethod(e.target.value)} />
                 <Icon className="w-5 h-5 text-orange-500" />
                 <div>

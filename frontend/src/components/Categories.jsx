@@ -17,7 +17,7 @@ const Categories = () => {
           {" "}
           Explore Our <span className="text-yellow-500">Categories</span>
         </h2>
-        <p style={{ color: 'var(--text-secondary)' }}> Discover delicious dishes from our carefully curated categories</p>
+        <p className="mb-10" style={{ color: 'var(--text-secondary)' }}> Discover delicious dishes from our carefully curated categories</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {categories.map((cat) => (
             <button

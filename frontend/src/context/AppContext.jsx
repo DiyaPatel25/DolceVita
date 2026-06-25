@@ -76,10 +76,7 @@ const AppContextProvider = ({ children }) => {
       setTotalPrice(total);
     }
   }, [cart]);
-  const cartCount = cart?.items?.reduce(
-    (acc, item) => acc + item.quantity,
-    0 || 0
-  );
+  const cartCount = cart?.items?.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
   // 🔹 Add to Cart function
   const addToCart = async (menuId, quantity = 1, customizations = {}) => {
     if (!user) {

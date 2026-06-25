@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 import {
@@ -21,7 +21,44 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
-  const { categories, menus } = useContext(AppContext);
+  const { categories, menus, axios } = useContext(AppContext);
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [revenueStats, setRevenueStats] = useState({ today: 0, count: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const [ordersRes, revenueRes] = await Promise.all([
+          axios.get("/api/order/orders"),
+          axios.get("/api/order/calculate-revenue")
+        ]);
+
+        if (ordersRes.data?.success) {
+          const formattedOrders = ordersRes.data.orders.slice(0, 5).map(o => ({
+            id: o._id.slice(-6).toUpperCase(),
+            customer: o.user?.name || o.guestName || "Guest",
+            items: o.items?.length || 0,
+            total: `₹${o.totalAmount}`,
+            status: o.status
+          }));
+          setRecentOrders(formattedOrders);
+        }
+
+        if (revenueRes.data?.success && revenueRes.data.data) {
+          setRevenueStats({
+            today: revenueRes.data.data.totalRevenue || 0,
+            count: revenueRes.data.data.ordersCount || 0
+          });
+        }
+      } catch (error) {
+        console.error("Failed to fetch dashboard data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, [axios]);
 
   const availableMenus = menus.filter((menu) => menu.isAvailable !== false).length;
   const unavailableMenus = menus.length - availableMenus;
@@ -60,8 +97,8 @@ const Dashboard = () => {
     },
     {
       label: "Revenue Today",
-      value: "₹24.8k",
-      trend: "+12% from yesterday",
+      value: `₹${revenueStats.today.toLocaleString()}`,
+      trend: `${revenueStats.count} orders today`,
       isPositive: true,
       icon: TrendingUp,
       bgGradient: "from-amber-600 to-orange-700",
@@ -78,17 +115,22 @@ const Dashboard = () => {
     { label: "View All Orders", to: "/admin/orders", icon: ClipboardList, color: "from-pink-500 to-pink-700" },
   ];
 
-  const recentOrders = [
-    { id: "ORD001", customer: "John Doe", items: 3, total: "₹450", status: "Completed" },
-    { id: "ORD002", customer: "Jane Smith", items: 2, total: "₹320", status: "In Progress" },
-    { id: "ORD003", customer: "Mike Johnson", items: 4, total: "₹620", status: "Completed" },
-  ];
 
-  const topCategories = categories.slice(0, 4).map((cat, idx) => ({
-    name: cat.name,
-    items: Math.floor(Math.random() * 15) + 5,
-    color: ["from-blue-400", "from-purple-400", "from-emerald-400", "from-amber-400"][idx] || "from-blue-400",
-  }));
+  const topCategories = categories
+    .map(cat => ({
+      name: cat.name,
+      items: menus.filter(m => {
+        const catId = typeof m.category === 'object' ? m.category?._id : m.category;
+        return catId === cat._id;
+      }).length,
+      color: "from-blue-400"
+    }))
+    .sort((a, b) => b.items - a.items)
+    .slice(0, 4)
+    .map((cat, idx) => ({
+      ...cat,
+      color: ["from-blue-400", "from-purple-400", "from-emerald-400", "from-amber-400"][idx] || "from-blue-400",
+    }));
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 md:p-8">
@@ -233,9 +275,9 @@ const Dashboard = () => {
               <div className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-amber-400" />
-                  <span className="text-sm text-white">Pending Orders</span>
+                  <span className="text-sm text-white">Today's Orders</span>
                 </div>
-                <span className="text-xs text-amber-400 font-semibold">{Math.floor(Math.random() * 5) + 2}</span>
+                <span className="text-xs text-amber-400 font-semibold">{revenueStats.count}</span>
               </div>
             </div>
           </div>
@@ -252,7 +294,11 @@ const Dashboard = () => {
               <Link to="/admin/orders" className="text-xs text-blue-400 hover:text-blue-300">View all</Link>
             </div>
             <div className="space-y-3">
-              {recentOrders.map((order) => (
+              {loading ? (
+                <div className="text-center py-4 text-slate-400 text-sm">Loading orders...</div>
+              ) : recentOrders.length === 0 ? (
+                <div className="text-center py-4 text-slate-400 text-sm">No orders yet.</div>
+              ) : recentOrders.map((order) => (
                 <div key={order.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <div>
                     <p className="text-sm font-semibold text-white">{order.id}</p>
