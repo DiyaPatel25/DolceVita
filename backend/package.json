@@ -6,7 +6,8 @@
   "scripts": {
     "server": "nodemon index.js",
     "start": "node index.js",
-    "migrate": "node migrate.js migrate"
+    "migrate": "node migrate.js migrate",
+    "seed:menu": "node seedMenu.js"
   },
   "keywords": [],
   "author": "",
