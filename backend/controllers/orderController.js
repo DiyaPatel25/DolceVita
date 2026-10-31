@@ -216,6 +216,9 @@ export const placeOrder = async (req, res) => {
       }
     }
 
+    // Skip cart lines whose menu item was deleted, as the cart page does
+    if (cart) cart = { ...cart, items: cart.items.filter((item) => item.menuItem) };
+
     if ((!cart || cart.items.length === 0) && (!Array.isArray(cartItems) || cartItems.length === 0)) {
       return res.status(400).json({ message: "Your cart is empty" });
     }
@@ -332,7 +335,9 @@ export const getUserOrders = async (req, res) => {
     let orders;
     if (isMongoDBConnected()) {
       const Order = (await import("../models/orderModel.js")).default;
-      orders = mongoose.Types.ObjectId.isValid(id) ? await Order.find({ user: id }).sort({ createdAt: -1 }).lean() : [];
+      orders = mongoose.Types.ObjectId.isValid(id)
+        ? await Order.find({ user: id }).populate("items.menuItem", "name price image").sort({ createdAt: -1 }).lean()
+        : [];
     } else {
       orders = await orderDB.find({ user: id });
     }

@@ -107,18 +107,18 @@ const MyOrders = () => {
                     {order.items?.length || 0} item{(order.items?.length || 0) !== 1 ? "s" : ""}
                   </p>
                   {order.items?.map((item, i) => {
-                    const m = item.menuItem;
-                    if (!m || typeof m !== "object") return (
-                      <p key={i} className="text-sm py-1" style={{ color: 'var(--text-secondary)' }}>Item × {item.quantity}</p>
-                    );
+                    // Prefer the name/price saved with the order; the menu item may have changed or been removed
+                    const m = typeof item.menuItem === "object" ? item.menuItem : null;
+                    const name = item.name || m?.name || "Item";
+                    const unit = Number(item.price ?? m?.price ?? 0) + (item.customizations?.addOnPrice || 0);
                     return (
                       <div key={i} className="flex items-center gap-3 py-2">
-                        <img src={m.image} alt={m.name} className="w-10 h-10 rounded-lg object-cover shrink-0" />
+                        {m?.image && <img src={m.image} alt={name} className="w-10 h-10 rounded-lg object-cover shrink-0" />}
                         <div className="flex-1">
-                          <p className="text-sm font-semibold" style={{ color: 'var(--text-color)' }}>{m.name}</p>
-                          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>₹{m.price} × {item.quantity}</p>
+                          <p className="text-sm font-semibold" style={{ color: 'var(--text-color)' }}>{name}</p>
+                          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>₹{unit} × {item.quantity}</p>
                         </div>
-                        <p className="text-sm font-bold" style={{ color: 'var(--text-color)' }}>₹{m.price * item.quantity}</p>
+                        <p className="text-sm font-bold" style={{ color: 'var(--text-color)' }}>₹{unit * item.quantity}</p>
                       </div>
                     );
                   })}

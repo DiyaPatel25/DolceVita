@@ -100,13 +100,15 @@ export const getCart = async (req, res) => {
     if (!cart) return res.status(200).json({ items: [] });
 
     if (!isMongoDBConnected()) {
-      // Manual population for local storage
-      for (let item of cart.items) {
-        const menuItem = await menuDB.findById(item.menuItem);
-        item.menuItem = menuItem;
-      }
+      // Manual population for local storage (copy, so the stored cart keeps plain ids)
+      cart = {
+        ...cart,
+        items: await Promise.all(cart.items.map(async (item) => ({ ...item, menuItem: await menuDB.findById(item.menuItem) }))),
+      };
     }
 
+    // An item deleted from the menu populates as null and would crash the cart page
+    cart = { ...cart, items: cart.items.filter((item) => item.menuItem) };
     res.status(200).json({ cart, success: true });
   } catch (error) {
     console.log(error);

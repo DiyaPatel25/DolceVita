@@ -6,8 +6,8 @@ import MenuCard from "../components/MenuCard";
 
 const Menu = () => {
   const { menus } = useContext(AppContext);
-  const [searchQuery, setSearchQuery] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
   const selectedCategoryId = searchParams.get("categoryId");
   const selectedCategoryName = searchParams.get("categoryName") || "";
@@ -36,9 +36,10 @@ const Menu = () => {
       getMenuCategoryId(menu) === selectedCategoryId ||
       getMenuCategoryName(menu).toLowerCase() === selectedCategoryName.toLowerCase();
 
-    const query = searchQuery.toLowerCase();
+    const query = searchQuery.trim().toLowerCase();
     const matchesSearch =
       menu.name.toLowerCase().includes(query) ||
+      getMenuCategoryName(menu).toLowerCase().includes(query) ||
       menu.description?.toLowerCase().includes(query);
 
     return matchesCategory && matchesSearch;

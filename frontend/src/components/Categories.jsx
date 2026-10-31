@@ -1,13 +1,24 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
+import SearchBox from "./SearchBox";
 
 const Categories = () => {
-  const { navigate, categories } = useContext(AppContext);
+  const { navigate, categories, menus } = useContext(AppContext);
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+
+  // A category matches by its own name, or by any dish inside it ("oreo" finds every section with an Oreo item)
+  const dishMatches = (cat) =>
+    menus.filter((m) => (m.category?._id ?? m.category) === cat._id && m.name.toLowerCase().includes(q)).length;
+  const visible = categories
+    .map((cat) => ({ ...cat, hits: q ? dishMatches(cat) : 0 }))
+    .filter((cat) => !q || cat.name.toLowerCase().includes(q) || cat.hits > 0);
 
   const handleCategoryClick = (category) => {
-    navigate(
-      `/menu?categoryId=${category._id}&categoryName=${encodeURIComponent(category.name)}`
-    );
+    const params = new URLSearchParams({ categoryId: category._id, categoryName: category.name });
+    // Searching by dish carries the search onto the menu page
+    if (q && !category.name.toLowerCase().includes(q)) params.set("q", query.trim());
+    navigate(`/menu?${params}`);
   };
 
   return (
@@ -17,9 +28,15 @@ const Categories = () => {
           {" "}
           Explore Our <span className="text-yellow-500">Categories</span>
         </h2>
-        <p className="mb-10" style={{ color: 'var(--text-secondary)' }}> Discover delicious dishes from our carefully curated categories</p>
+        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}> Discover delicious dishes from our carefully curated categories</p>
+        <div className="mb-10">
+          <SearchBox value={query} onChange={setQuery} placeholder="Search categories or dishes..." />
+        </div>
+        {visible.length === 0 && (
+          <p className="py-6" style={{ color: 'var(--text-secondary)' }}>No categories match "{query}"</p>
+        )}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
-          {categories.map((cat) => (
+          {visible.map((cat) => (
             <button
               key={cat._id}
               type="button"
@@ -41,7 +58,7 @@ const Categories = () => {
                   {cat.name}
                 </h3>
                 <p className="mt-1 text-xs uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
-                  View items
+                  {cat.hits > 0 ? `${cat.hits} matching ${cat.hits === 1 ? "item" : "items"}` : "View items"}
                 </p>
               </div>
             </button>

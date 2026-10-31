@@ -49,7 +49,7 @@ const Orders = () => {
       } else {
         toast.error(data.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update status");
     } finally {
       setUpdating(null);
@@ -75,7 +75,7 @@ const Orders = () => {
       } else {
         toast.error(data.message);
       }
-    } catch (error) {
+    } catch {
       toast.error("Failed to update payment status");
     } finally {
       setUpdating(null);
@@ -92,7 +92,7 @@ const Orders = () => {
       } else {
         toast.error("Failed to calculate revenue");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error calculating revenue");
     } finally {
       setCalculating(false);
@@ -127,7 +127,7 @@ const Orders = () => {
                 setLoadingHistory(true);
                 const { data } = await axios.get("/api/order/revenues");
                 if (data.success) { setPastRevenues(data.data); setShowHistory(true); }
-              } catch (e) { toast.error("Failed to load analytics"); } finally { setLoadingHistory(false); }
+              } catch { toast.error("Failed to load analytics"); } finally { setLoadingHistory(false); }
             }}
             disabled={loadingHistory}
             className="px-4 py-2 bg-purple-50 text-purple-700 font-bold rounded-lg border border-purple-200 hover:bg-purple-100 transition-colors shadow-sm cursor-pointer flex items-center gap-1.5"
@@ -263,16 +263,16 @@ const Orders = () => {
                 {/* Items */}
                 <div className="px-5 py-3 space-y-3">
                   {order.items?.map((item, i) => {
-                    const m = item.menuItem;
-                    if (!m || typeof m !== "object") return (
-                      <p key={i} className="text-sm text-gray-500">× {item.quantity} item</p>
-                    );
+                    // Prefer the name/price saved with the order; the menu item may have changed or been removed
+                    const m = typeof item.menuItem === "object" ? item.menuItem : null;
+                    const name = item.name || m?.name || "Item";
+                    const price = Number(item.price ?? m?.price ?? 0);
                     return (
                       <div key={i} className="flex items-center gap-3">
-                        <img src={m.image} alt={m.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
+                        {m?.image && <img src={m.image} alt={name} className="w-12 h-12 rounded-xl object-cover shrink-0" />}
                         <div className="flex-1">
-                          <p className="text-sm font-semibold text-gray-800">{m.name}</p>
-                          <p className="text-xs text-gray-500">₹{m.price} × {item.quantity}</p>
+                          <p className="text-sm font-semibold text-gray-800">{name}</p>
+                          <p className="text-xs text-gray-500">₹{price} × {item.quantity}</p>
                           {item.customizations?.addOnPrice > 0 && (
                             <p className="text-[10px] text-gray-500 leading-tight mt-0.5">
                               + Customizations (₹{item.customizations.addOnPrice})
@@ -280,7 +280,7 @@ const Orders = () => {
                           )}
                         </div>
                         <p className="text-sm font-bold text-gray-700">
-                          ₹{(m.price * item.quantity) + ((item.customizations?.addOnPrice || 0) * item.quantity)}
+                          ₹{(price * item.quantity) + ((item.customizations?.addOnPrice || 0) * item.quantity)}
                         </p>
                       </div>
                     );

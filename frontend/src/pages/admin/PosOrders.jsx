@@ -35,6 +35,7 @@ const PosOrders = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(null);
   const [filter, setFilter] = useState("all");
+  const [confirmCancel, setConfirmCancel] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -75,10 +76,15 @@ const PosOrders = () => {
     }
   };
 
+  // Two taps instead of window.confirm, which many phone and in-app browsers silently block
   const cancel = (order) => {
-    if (window.confirm(`Cancel order #${order._id.slice(-5).toUpperCase()} (${rupee(order.totalAmount)})? It will be removed from today's totals.`)) {
-      update(order, { status: "Cancelled" }, "Order cancelled");
+    if (confirmCancel !== order._id) {
+      setConfirmCancel(order._id);
+      setTimeout(() => setConfirmCancel((id) => (id === order._id ? null : id)), 6000);
+      return;
     }
+    setConfirmCancel(null);
+    update(order, { status: "Cancelled" }, "Order cancelled");
   };
 
   if (loading || !data) {
@@ -270,8 +276,12 @@ const PosOrders = () => {
                           <CheckCircle2 className="w-4 h-4" /> Served
                         </button>
                       )}
-                      <button disabled={busy} onClick={() => cancel(order)} className="ml-auto px-3 py-2 rounded-lg text-red-500 hover:bg-red-50 text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">
-                        <XCircle className="w-4 h-4" /> Cancel
+                      <button
+                        disabled={busy}
+                        onClick={() => cancel(order)}
+                        className={`ml-auto px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1.5 disabled:opacity-50 ${confirmCancel === order._id ? "bg-red-600 text-white" : "text-red-500 hover:bg-red-50"}`}
+                      >
+                        <XCircle className="w-4 h-4" /> {confirmCancel === order._id ? `Tap again to cancel ${rupee(order.totalAmount)}` : "Cancel"}
                       </button>
                     </div>
                   )}
