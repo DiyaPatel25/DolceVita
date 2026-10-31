@@ -23,8 +23,8 @@ const AdminLayout = () => {
 
   const menuItems = [
     { path: "/admin", name: "Dashboard", icon: LayoutDashboard, exact: true },
-    { path: "/admin/take-order", name: "Take Order (POS)", icon: ShoppingCart },
-    { path: "/admin/pos-orders", name: "POS Orders", icon: ClipboardList },
+    { path: "/admin/take-order", name: "New Counter Order", icon: ShoppingCart },
+    { path: "/admin/pos-orders", name: "Counter Orders & Sales", icon: ClipboardList },
     { path: "/admin/add-category", name: "Add Category", icon: Plus },
     { path: "/admin/add-menu", name: "Add Menu", icon: Package },
     { path: "/admin/categories", name: "All Categories", icon: Grid3X3 },

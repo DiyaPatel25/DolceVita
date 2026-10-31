@@ -89,18 +89,11 @@ export const loginUser = async (req, res) => {
 
     generateToken(res, { id: user._id, role: "user" }, "userToken");
 
-    // If this is the user's first successful login, send a welcome email.
-    try {
-      if (!user.hasBeenWelcomed) {
-        const emailSent = await sendWelcomeEmail(user.email, user.name);
-        if (emailSent) {
-          // mark user as welcomed to avoid duplicate emails
-          await userDB.findByIdAndUpdate(user._id, { hasBeenWelcomed: true });
-        }
-      }
-    } catch (err) {
-      console.error('Error sending welcome email on login:', err.message);
-      // Do not block login on email errors
+    // First login: send the welcome email in the background so SMTP latency never delays login
+    if (!user.hasBeenWelcomed) {
+      sendWelcomeEmail(user.email, user.name)
+        .then((emailSent) => emailSent && userDB.findByIdAndUpdate(user._id, { hasBeenWelcomed: true }))
+        .catch((err) => console.error('Error sending welcome email on login:', err.message));
     }
 
     res.json({

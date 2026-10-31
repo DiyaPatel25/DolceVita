@@ -64,7 +64,7 @@ class DataAccess {
   async findOne(query) {
     if (isMongoDBConnected()) {
       if (this.isQueryInvalid(query)) return null;
-      return await this.mongoModel.findOne(query);
+      return await this.mongoModel.findOne(query).lean();
     }
     return this.localStorage.findOne(query);
   }
@@ -72,7 +72,7 @@ class DataAccess {
   async find(query = {}) {
     if (isMongoDBConnected()) {
       if (this.isQueryInvalid(query)) return [];
-      return await this.mongoModel.find(query);
+      return await this.mongoModel.find(query).lean();
     }
     return this.localStorage.find(query);
   }
@@ -80,7 +80,7 @@ class DataAccess {
   async findById(id) {
     if (isMongoDBConnected()) {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      return await this.mongoModel.findById(id);
+      return await this.mongoModel.findById(id).lean();
     }
     return this.localStorage.findById(id);
   }
@@ -88,7 +88,7 @@ class DataAccess {
   async findByIdAndUpdate(id, update, options = {}) {
     if (isMongoDBConnected()) {
       if (!mongoose.Types.ObjectId.isValid(id)) return null;
-      return await this.mongoModel.findByIdAndUpdate(id, update, { new: true, ...options });
+      return await this.mongoModel.findByIdAndUpdate(id, update, { new: true, ...options }).lean();
     }
     return this.localStorage.findByIdAndUpdate(id, update);
   }

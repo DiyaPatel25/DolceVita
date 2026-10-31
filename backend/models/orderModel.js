@@ -3,7 +3,7 @@ const orderSchema=new mongoose.Schema({
    user:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"User",
-    required:true
+    required:false // POS (counter) orders have no customer account
   },
   guestName: {
     type: String,
@@ -16,6 +16,9 @@ const orderSchema=new mongoose.Schema({
           ref: "Menu",
           required: true,
         },
+        // Snapshot at order time so old bills don't change when the menu price changes
+        name: String,
+        price: Number,
         quantity: {
           type: Number,
           required: true,
@@ -26,6 +29,10 @@ const orderSchema=new mongoose.Schema({
         }
       },
     ],
+    discount: {
+      type: Number,
+      default: 0,
+    },
     totalAmount: {
       type: Number,
       required: true,
@@ -41,7 +48,7 @@ const orderSchema=new mongoose.Schema({
     },
       status: {
       type: String,
-      enum: ["Pending", "Preparing", "Ready", "Delivered"],
+      enum: ["Pending", "Preparing", "Ready", "Delivered", "Cancelled"],
       default: "Pending",
     },
      paymentMethod: {
@@ -54,6 +61,10 @@ const orderSchema=new mongoose.Schema({
       default: "Pending",
     },
 },{timestamps:true});
+
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ createdAt: -1 });
+orderSchema.index({ address: 1, createdAt: -1 });
 
 const Order=mongoose.model("Order",orderSchema);
 export default Order;

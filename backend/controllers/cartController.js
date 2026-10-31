@@ -87,15 +87,19 @@ export const addToCart = async (req, res) => {
 export const getCart = async (req, res) => {
   try {
     const id = getUserId(req, res);
-    let cart = await cartDB.findOne({ user: id });
-    
-    if (!cart) return res.status(200).json({ items: [] });
-
-    // Handle population based on storage type
+    let cart;
     if (isMongoDBConnected()) {
       const Cart = (await import("../models/cartModel.js")).default;
-      cart = await Cart.findOne({ user: id }).populate("items.menuItem");
+      cart = mongoose.Types.ObjectId.isValid(id)
+        ? await Cart.findOne({ user: id }).populate("items.menuItem").lean()
+        : null;
     } else {
+      cart = await cartDB.findOne({ user: id });
+    }
+
+    if (!cart) return res.status(200).json({ items: [] });
+
+    if (!isMongoDBConnected()) {
       // Manual population for local storage
       for (let item of cart.items) {
         const menuItem = await menuDB.findById(item.menuItem);

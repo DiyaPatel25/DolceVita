@@ -57,14 +57,12 @@ export const addMenuItem = async (req, res) => {
 
 export const getAllMenuItems = async (req, res) => {
   try {
-    let menuItems = await menuDB.find();
-    
-    // Handle category population based on storage type
+    let menuItems;
     if (isMongoDBConnected()) {
-      // MongoDB will handle populate automatically in the model
       const Menu = (await import("../models/menuModel.js")).default;
-      menuItems = await Menu.find().populate("category", "name").sort({ createdAt: -1 });
+      menuItems = await Menu.find().populate("category", "name").sort({ createdAt: -1 }).lean();
     } else {
+      menuItems = await menuDB.find();
       // Manual population for local storage
       for (let item of menuItems) {
         if (item.category && typeof item.category === 'string') {

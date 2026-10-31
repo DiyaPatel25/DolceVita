@@ -11,44 +11,47 @@ import Signup from "./pages/Signup";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
-import AdminLayout from "./pages/admin/AdminLayout";
-import { useContext } from "react";
+import { lazy, Suspense, useContext } from "react";
 import { AppContext } from "./context/AppContext";
-import AddCategory from "./pages/admin/AddCategory";
-import AddMenu from "./pages/admin/AddMenu";
-import Categories from "./pages/admin/Categories";
-import Menus from "./pages/admin/Menus";
-import Orders from "./pages/admin/Orders";
-import PosOrders from "./pages/admin/PosOrders";
-import Dashboard from "./pages/admin/Dashboard";
-import TakeOrder from "./pages/admin/TakeOrder";
 import FloatingCart from "./components/FloatingCart";
+
+// Admin pages are split out so customers never download them
+const AdminLayout = lazy(() => import("./pages/admin/AdminLayout"));
+const AddCategory = lazy(() => import("./pages/admin/AddCategory"));
+const AddMenu = lazy(() => import("./pages/admin/AddMenu"));
+const Categories = lazy(() => import("./pages/admin/Categories"));
+const Menus = lazy(() => import("./pages/admin/Menus"));
+const Orders = lazy(() => import("./pages/admin/Orders"));
+const PosOrders = lazy(() => import("./pages/admin/PosOrders"));
+const Dashboard = lazy(() => import("./pages/admin/Dashboard"));
+const TakeOrder = lazy(() => import("./pages/admin/TakeOrder"));
+
+const Spinner = ({ text }) => (
+  <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
+    <div className="text-center">
+      <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-orange-500/20 border-t-orange-500" />
+      {text && <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{text}</p>}
+    </div>
+  </div>
+);
+
+// Defined outside App: a component declared inside App gets a new identity every render,
+// which remounted (and refetched) the whole admin panel on every context update.
+const AdminGuard = ({ children }) => {
+  const { admin, authReady } = useContext(AppContext);
+  if (!authReady) return <Spinner text="Restoring your session..." />;
+  return admin ? children : <Navigate to="/login" replace />;
+};
 
 const App = () => {
   const adminPath = useLocation().pathname.includes("admin");
-  const { admin, authReady } = useContext(AppContext);
-
-  // Redirect to /login if not admin
-  const AdminGuard = ({ children }) => {
-    if (!authReady) {
-      return (
-        <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-          <div className="text-center">
-            <div className="mx-auto mb-3 h-10 w-10 animate-spin rounded-full border-4 border-orange-500/20 border-t-orange-500" />
-            <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>Restoring your session...</p>
-          </div>
-        </div>
-      );
-    }
-
-    return admin ? children : <Navigate to="/login" replace />;
-  };
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
       <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Inter, sans-serif' } }} />
       {!adminPath && <Navbar />}
       {!adminPath && <FloatingCart />}
+      <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/menu" element={<Menu />} />
@@ -72,6 +75,7 @@ const App = () => {
           <Route path="pos-orders" element={<PosOrders />} />
         </Route>
       </Routes>
+      </Suspense>
       {!adminPath && <Footer />}
     </div>
   );

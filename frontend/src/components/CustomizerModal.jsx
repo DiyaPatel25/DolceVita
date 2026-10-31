@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, Plus, Minus, Check } from "lucide-react";
-import toast from "react-hot-toast";
 
 const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
   const [quantity, setQuantity] = useState(1);
@@ -92,7 +91,7 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-orange-600 font-bold">+₹{extraCreamPrice}</span>
+                  <span className="text-orange-600 font-bold whitespace-nowrap">+₹{extraCreamPrice}</span>
                   <button
                     onClick={() => setExtraCream(!extraCream)}
                     className={`w-6 h-6 rounded-full border-2 transition flex items-center justify-center ${
@@ -137,7 +136,7 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                     </div>
                     <span className="font-semibold" style={{ color: 'var(--text-color)' }}>{topping.name}</span>
                   </div>
-                  <span className="text-orange-600 font-bold">+₹{topping.price}</span>
+                  <span className="text-orange-600 font-bold whitespace-nowrap">+₹{topping.price}</span>
                 </button>
               ))}
             </div>

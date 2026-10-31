@@ -5,7 +5,7 @@ let isMongoConnected = false;
 export const connectDB = async () => {
   try {
     if (process.env.MONGO_URL) {
-      await mongoose.connect(process.env.MONGO_URL);
+      await mongoose.connect(process.env.MONGO_URL, { serverSelectionTimeoutMS: 10000 });
       isMongoConnected = true;
       console.log("MongoDB connected ✅");
     } else {

@@ -8,16 +8,23 @@ const escapeHtml = (unsafe) => {
     .replace(/'/g, "&#039;");
 };
 
+// Created lazily so env vars are loaded; reused so every email doesn't open a new SMTP connection
+let transporter;
+export const getTransporter = () => {
+    transporter ??= nodemailer.createTransport({
+        service: 'gmail',
+        pool: true,
+        auth: {
+            user: process.env.EMAIL_USER,
+            pass: process.env.EMAIL_PASS
+        }
+    });
+    return transporter;
+};
+
 const sendWelcomeEmail = async (userEmail, userName) => {
     try {
-        // 1. Connection to Gmail
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            }
-        });
+        const transporter = getTransporter();
 
         // 2. The Professional Dolce Vita Template
         const mailOptions = {

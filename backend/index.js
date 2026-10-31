@@ -15,9 +15,9 @@ import contactRoutes from "./routes/contactRoutes.js";
 import connectCloudinary from "./config/cloudinary.js";
 import Razorpay from "razorpay";
 const app = express();
+// Behind Render/Vercel proxy: without this every visitor shares the proxy IP and one rate-limit bucket
+app.set("trust proxy", 1);
 
-// Database connection
-connectDB();
 connectCloudinary();
 
 
@@ -42,7 +42,7 @@ app.use(cookieParser());
 // Rate limiting
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  max: 300, // per IP per 15 minutes; a single page load already fires several API calls
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -103,6 +103,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ success: false, message: "Internal server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`server is running on port ${PORT}`);
+// Connect before accepting traffic so early requests don't fall back to the local JSON store
+connectDB().finally(() => {
+  app.listen(PORT, () => {
+    console.log(`server is running on port ${PORT}`);
+  });
 });

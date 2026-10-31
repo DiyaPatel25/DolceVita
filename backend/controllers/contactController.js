@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { getTransporter } from "../emailService.js";
 import DataAccess from "../config/dataAccess.js";
 
 const contactDB = new DataAccess('Contact');
@@ -58,14 +58,10 @@ export const sendContactMessage = async (req, res) => {
 
     const receiverEmail = process.env.CONTACT_RECEIVER_EMAIL || process.env.EMAIL_USER;
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    const transporter = getTransporter();
 
+    // Inquiry is already saved; send both emails in the background so the form responds instantly
+    (async () => {
     try {
       // Send message to receiver
       await transporter.sendMail({
@@ -108,6 +104,7 @@ export const sendContactMessage = async (req, res) => {
     } catch (emailErr) {
       console.warn("⚠️ Nodemailer email dispatch encountered an error (e.g. invalid Gmail pass):", emailErr.message);
     }
+    })();
 
     return res.status(200).json({
       success: true,

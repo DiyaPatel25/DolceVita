@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import razorpay from "../config/razorpay.js";
+import { priceCustomizations, istDateString, istDayStart, addDays } from "../utils/orderMath.js";
 
 // Initialize data access for Order, Cart, Menu, and User
 const orderDB = new DataAccess('Order');
@@ -147,10 +148,9 @@ export const placeOrder = async (req, res) => {
       const guestName = name?.trim() || "Guest Customer";
       const guestEmailSeed = (req.cookies && req.cookies.guestId) || new mongoose.Types.ObjectId().toString();
       const guestEmail = `guest_${guestEmailSeed}@guest.local`;
-      const guestPassword = await bcrypt.hash(guestEmailSeed, 10);
-
       let guestUser = await userDB.findOne({ email: guestEmail });
       if (!guestUser) {
+        const guestPassword = await bcrypt.hash(guestEmailSeed, 10);
         guestUser = await userDB.create({
           name: guestName,
           email: guestEmail,
@@ -199,13 +199,14 @@ export const placeOrder = async (req, res) => {
       const guestId = req.cookies && req.cookies.guestId;
       const searchId = hasUserToken ? userId : (guestId || userId);
     
-    let cart = await cartDB.findOne({ user: searchId });
-
-    // Handle population based on storage type
+    let cart;
     if (isMongoDBConnected()) {
       const Cart = (await import("../models/cartModel.js")).default;
-      cart = await Cart.findOne({ user: searchId }).populate("items.menuItem");
+      cart = mongoose.Types.ObjectId.isValid(searchId)
+        ? await Cart.findOne({ user: searchId }).populate("items.menuItem").lean()
+        : null;
     } else {
+      cart = await cartDB.findOne({ user: searchId });
       // Manual population for local storage
       if (cart && cart.items) {
         for (let item of cart.items) {
@@ -219,7 +220,7 @@ export const placeOrder = async (req, res) => {
       return res.status(400).json({ message: "Your cart is empty" });
     }
 
-    const resolvedItems = (cart && cart.items.length > 0)
+    let resolvedItems = (cart && cart.items.length > 0)
       ? cart.items
       : await Promise.all(
           cartItems.map(async (item) => ({
@@ -232,6 +233,11 @@ export const placeOrder = async (req, res) => {
     if (resolvedItems.some((item) => !item.menuItem)) {
       return res.status(400).json({ message: "One or more cart items could not be found", success: false });
     }
+    resolvedItems = resolvedItems.map((item) => ({
+      ...item,
+      quantity: Math.max(1, Math.floor(Number(item.quantity) || 1)),
+      customizations: priceCustomizations(item.menuItem, item.customizations),
+    }));
 
     // Decrement stock by 1 per distinct menu item when an order is placed
     const stockChecks = resolvedItems.map((item) => {
@@ -281,6 +287,8 @@ export const placeOrder = async (req, res) => {
         guestName: guestName || null,
         items: resolvedItems.map((i) => ({
           menuItem: i.menuItem._id,
+          name: i.menuItem.name,
+          price: Number(i.menuItem.price),
           quantity: i.quantity,
           customizations: i.customizations || {},
         })),
@@ -321,7 +329,13 @@ export const placeOrder = async (req, res) => {
 export const getUserOrders = async (req, res) => {
   try {
     const { id } = req.user;
-    let orders = await orderDB.find({ user: id });
+    let orders;
+    if (isMongoDBConnected()) {
+      const Order = (await import("../models/orderModel.js")).default;
+      orders = mongoose.Types.ObjectId.isValid(id) ? await Order.find({ user: id }).sort({ createdAt: -1 }).lean() : [];
+    } else {
+      orders = await orderDB.find({ user: id });
+    }
     
     // Sort by createdAt if available
     if (orders.length > 0 && orders[0].createdAt) {
@@ -337,22 +351,22 @@ export const getUserOrders = async (req, res) => {
 
 export const getAllOrders = async (req, res) => {
   try {
-    let orders = await orderDB.find();
-
-    // Handle population based on storage type
+    let orders;
     if (isMongoDBConnected()) {
       const Order = (await import("../models/orderModel.js")).default;
       orders = await Order.find()
-        .populate("user")
+        .populate("user", "name email")
         .populate("items.menuItem")
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .lean();
     } else {
+      orders = await orderDB.find();
       // Manual population for local storage
       for (let order of orders) {
         // Populate user
         if (order.user) {
           const user = await userDB.findById(order.user);
-          order.user = user;
+          order.user = user ? { _id: user._id, name: user.name, email: user.email } : null;
         }
         // Populate menu items
         if (order.items) {
@@ -404,23 +418,22 @@ export const updateOrderStatus = async (req, res) => {
 
 export const calculateDailyRevenue = async (req, res) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateString = istDateString();
+    const today = istDayStart(dateString);
+    const tomorrow = addDays(today, 1);
 
     // For DataAccess compatibility, we may need to filter locally if not using MongoDB
     let todayOrders = [];
     if (isMongoDBConnected()) {
       todayOrders = await orderDB.find({
         createdAt: { $gte: today, $lt: tomorrow },
-        paymentStatus: "Paid"
+        paymentStatus: "Paid",
+        status: { $ne: "Cancelled" }
       });
     } else {
       const allOrders = await orderDB.find();
       todayOrders = allOrders.filter(o => {
-        if (o.paymentStatus !== "Paid" || !o.createdAt) return false;
+        if (o.paymentStatus !== "Paid" || o.status === "Cancelled" || !o.createdAt) return false;
         const d = new Date(o.createdAt);
         return d >= today && d < tomorrow;
       });
@@ -438,8 +451,6 @@ export const calculateDailyRevenue = async (req, res) => {
         cashRevenue += order.totalAmount; // Pay at Counter, Cash, etc.
       }
     }
-
-    const dateString = today.toISOString().split('T')[0];
 
     let revenueRecord;
     

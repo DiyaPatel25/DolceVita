@@ -2,7 +2,11 @@ import express from "express";
 
 import {adminOnly,protect} from "../middlewares/authMiddleware.js"
 import { createPaymentOrder, getAllOrders, getUserOrders, placeOrder, updateOrderStatus, verifyPaymentSignature, calculateDailyRevenue, getAllRevenues } from "../controllers/orderController.js";
+import { getPosOrders, placePosOrder, updatePosOrder } from "../controllers/posController.js";
 const orderRoutes=express.Router();
+orderRoutes.post("/pos", adminOnly, placePosOrder);
+orderRoutes.get("/pos", adminOnly, getPosOrders);
+orderRoutes.put("/pos/:id", adminOnly, updatePosOrder);
 orderRoutes.post("/create-payment-order", createPaymentOrder);
 orderRoutes.post("/verify-payment", verifyPaymentSignature);
 orderRoutes.post("/place",placeOrder);
