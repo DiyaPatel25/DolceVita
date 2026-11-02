@@ -1,10 +1,11 @@
 import { useContext, useState } from "react";
+import { compressImage } from "../../utils/compressImage";
 import { AppContext } from "../../context/AppContext";
 import { Trash2, ImageOff, IndianRupee, Camera, Search, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Menus = () => {
-  const { menus, categories, fetchMenus, axios } = useContext(AppContext);
+  const { allMenus: menus, allCategories: categories, fetchMenus, axios } = useContext(AppContext);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
   const q = query.trim().toLowerCase();
@@ -41,7 +42,7 @@ const Menus = () => {
   const changePhoto = async (id, file) => {
     if (!file) return;
     const form = new FormData();
-    form.append("image", file);
+    form.append("image", await compressImage(file));
     try {
       setUploadingId(id);
       const { data } = await axios.put(`/api/menu/update/${id}`, form);

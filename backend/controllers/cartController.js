@@ -43,7 +43,7 @@ export const addToCart = async (req, res) => {
     const id = getUserId(req, res);
     
     const menuItem = await menuDB.findById(menuId);
-    if (!menuItem)
+    if (!menuItem || menuItem.counterOnly)
       return res.status(404).json({ message: "Menu item not found" });
 
     let cart = await cartDB.findOne({ user: id });

@@ -3,42 +3,56 @@
     "_id": "cat-cheesecakes",
     "name": "Cheesecakes",
     "image": "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "cat-brownies",
     "name": "Brownies",
     "image": "https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "cat-cake-bowls",
     "name": "Cake Bowls",
     "image": "https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "cat-tub-cakes",
     "name": "Tub Cakes",
     "image": "https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "cat-waffles",
     "name": "Waffles",
     "image": "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "cat-london-chocolate-strawberry",
     "name": "London Chocolate Strawberry",
     "image": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&q=70&auto=format&fit=crop",
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "counterOnly": false,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
+  },
+  {
+    "_id": "cat-beverages",
+    "name": "Beverages",
+    "image": "https://images.unsplash.com/photo-1616118132534-381148898bb4?w=600&q=70&auto=format&fit=crop",
+    "counterOnly": true,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   }
 ]

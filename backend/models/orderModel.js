@@ -55,6 +55,8 @@ const orderSchema=new mongoose.Schema({
       type: String,
       default: "Pay at Counter",
     },
+    // Only for paymentMethod "Split": the part paid online; the rest of totalAmount was cash
+    onlineAmount: Number,
     paymentStatus: {
       type: String,
       enum: ["Pending", "Paid"],

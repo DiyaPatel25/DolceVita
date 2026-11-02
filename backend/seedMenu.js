@@ -53,17 +53,23 @@ const MENU = [
       ["Single Chocolate", 129, "1621792907526-e69888069079"], ["Double Chocolate", 139, "1503624280608-6b79dc9ab03d"], ["Triple Chocolate", 149, "1646902823849-1aa943a17f46"], ["Nutella", 169, "1749767138185-793f09915dc3"],
       ["With Brownie", 149, "1589734836710-b40d84375687"], ["Pistachio", 179, "1630859885680-8f780e2e65a9"], ["Wafer Strawberry Chocolate", 149, "1622219768619-58b9d2937049"],
     ] },
+  // Counter-only: shows on the counter screen and in admin, never on the website
+  { category: "Beverages", suffix: "", counterOnly: true, image: photo("1616118132534-381148898bb4"),
+    description: "Packaged drinking water.", items: [
+      ["Water Bottle", 10, "1616118132534-381148898bb4"],
+    ] },
 ];
 
 const items = MENU.flatMap((section) =>
   section.items.map(([name, price, photoId]) => ({
     category: section.category,
-    name: `${name} ${section.suffix}`,
+    name: section.suffix ? `${name} ${section.suffix}` : name,
     description: section.description,
     price,
     image: photo(photoId),
     isCustomizable: Boolean(section.options),
     customizationOptions: section.options || {},
+    counterOnly: Boolean(section.counterOnly),
   }))
 );
 const names = new Set(items.map((i) => i.name));
@@ -90,7 +96,7 @@ const seedMongo = async () => {
   for (const section of [...MENU].reverse()) {
     const cat = await Category.findOneAndUpdate(
       { name: section.category },
-      { name: section.category, image: section.image },
+      { name: section.category, image: section.image, counterOnly: Boolean(section.counterOnly) },
       { upsert: true, new: true }
     );
     categoryIds[section.category] = cat._id;
@@ -115,7 +121,7 @@ const seedLocal = () => {
   const dataDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "data");
   const now = new Date().toISOString();
   const slug = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-  const categories = MENU.map((s) => ({ _id: `cat-${slug(s.category)}`, name: s.category, image: s.image, createdAt: now, updatedAt: now }));
+  const categories = MENU.map((s) => ({ _id: `cat-${slug(s.category)}`, name: s.category, image: s.image, counterOnly: Boolean(s.counterOnly), createdAt: now, updatedAt: now }));
   const menus = items.map(({ category, ...item }) => ({
     _id: `menu-${slug(item.name)}`,
     ...item,

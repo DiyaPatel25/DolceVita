@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { compressImage } from "../../utils/compressImage";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-hot-toast";
 import { Tag, Image, Plus } from "lucide-react";
@@ -30,10 +31,11 @@ const AddCategory = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const payload = imageFile ? (() => {
+      const photo = imageFile && (await compressImage(imageFile));
+      const payload = photo ? (() => {
         const data = new FormData();
         data.append("name", formData.name);
-        data.append("image", imageFile);
+        data.append("image", photo);
         return data;
       })() : { name: formData.name, image: formData.imageUrl };
 

@@ -43,6 +43,11 @@ const menuSchema=new mongoose.Schema({
     customizationOptions: {
       type: Object,
       default: {}
+    },
+    // Sold only at the counter (e.g. water bottle); hidden from the website
+    counterOnly: {
+      type: Boolean,
+      default: false
     }
 
 },{timestamps:true});

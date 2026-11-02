@@ -9,6 +9,11 @@ const categorySchema=new mongoose.Schema({
    image:{
       type:String,
       required:true
+   },
+   // Counter-only section (e.g. Beverages); hidden from the website
+   counterOnly:{
+      type:Boolean,
+      default:false
    }
 },{timestamps:true});
 

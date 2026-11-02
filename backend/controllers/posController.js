@@ -1,7 +1,7 @@
 import DataAccess from "../config/dataAccess.js";
 import { isMongoDBConnected } from "../config/db.js";
 import Order from "../models/orderModel.js";
-import { priceCustomizations, istDateString, istDayStart, addDays } from "../utils/orderMath.js";
+import { priceCustomizations, businessDate, businessDayStart, addDays, paidAmounts } from "../utils/orderMath.js";
 
 const orderDB = new DataAccess('Order');
 const menuDB = new DataAccess('Menu');
@@ -14,6 +14,18 @@ const PAYMENT = {
   Cash: { paymentMethod: "Cash", paymentStatus: "Paid" },
   Online: { paymentMethod: "Online Payment", paymentStatus: "Paid" },
   Pending: { paymentMethod: "Pay at Counter", paymentStatus: "Pending" },
+  Split: { paymentMethod: "Split", paymentStatus: "Paid" },
+};
+
+// Payment fields for an order of `total`, or an error message. Split needs the online part, the rest is cash.
+const paymentFields = (payment, onlineAmount, total) => {
+  if (!PAYMENT[payment]) return "Invalid payment type";
+  if (payment !== "Split") return PAYMENT[payment];
+  const online = Math.round(Number(onlineAmount));
+  if (!Number.isFinite(online) || online <= 0 || online >= total) {
+    return `For a split payment, enter an online amount between ₹1 and ₹${total - 1}`;
+  }
+  return { ...PAYMENT.Split, onlineAmount: online };
 };
 
 const findPosOrders = async (from, to) => {
@@ -43,7 +55,8 @@ const toBill = (order) => ({
   createdAt: order.createdAt,
   customerName: order.guestName || "Walk-in",
   status: order.status,
-  payment: order.paymentStatus !== "Paid" ? "Pending" : order.paymentMethod === "Online Payment" ? "Online" : "Cash",
+  payment: order.paymentStatus !== "Paid" ? "Pending" : order.paymentMethod === "Online Payment" ? "Online" : order.paymentMethod === "Split" ? "Split" : "Cash",
+  ...paidAmounts(order), // cash, online
   discount: order.discount || 0,
   totalAmount: order.totalAmount,
   items: order.items.map((i) => {
@@ -70,9 +83,9 @@ const summarize = (bills) => {
     s.orders++;
     s.discount += b.discount;
     if (b.status !== "Delivered") s.toServe++;
-    if (b.payment === "Cash") s.cash += b.totalAmount;
-    else if (b.payment === "Online") s.online += b.totalAmount;
-    else { s.unpaid += b.totalAmount; s.unpaidCount++; }
+    s.cash += b.cash;
+    s.online += b.online;
+    if (b.payment === "Pending") { s.unpaid += b.totalAmount; s.unpaidCount++; }
     for (const i of b.items) {
       items[i.name] ??= { name: i.name, quantity: 0, amount: 0 };
       items[i.name].quantity += i.quantity;
@@ -86,7 +99,7 @@ const summarize = (bills) => {
 
 export const placePosOrder = async (req, res) => {
   try {
-    const { items = [], customerName = "", payment = "Pending", discount = 0 } = req.body;
+    const { items = [], customerName = "", payment = "Pending", discount = 0, onlineAmount } = req.body;
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: "Add at least one item" });
     }
@@ -109,6 +122,8 @@ export const placePosOrder = async (req, res) => {
 
     const subtotal = lines.reduce((sum, l) => sum + (Number(l.menuItem.price) + l.customizations.addOnPrice) * l.quantity, 0);
     const appliedDiscount = Math.min(Math.max(0, Math.round(Number(discount) || 0)), subtotal);
+    const paid = paymentFields(payment, onlineAmount, subtotal - appliedDiscount);
+    if (typeof paid === "string") return res.status(400).json({ success: false, message: paid });
 
     const order = await orderDB.create({
       guestName: customerName.trim() || null,
@@ -124,7 +139,7 @@ export const placePosOrder = async (req, res) => {
       orderType: "Pickup",
       address: POS_ADDRESS,
       status: "Pending",
-      ...PAYMENT[payment],
+      ...paid,
     });
 
     // Same stock rule as website orders: 1 per distinct item, never below 0
@@ -147,11 +162,11 @@ export const placePosOrder = async (req, res) => {
 
 export const getPosOrders = async (req, res) => {
   try {
-    const today = istDateString();
+    const today = businessDate();
     const requested = /^\d{4}-\d{2}-\d{2}$/.test(req.query.date || "") ? req.query.date : today;
     const date = requested > today ? today : requested;
-    const dayStart = istDayStart(date);
-    const todayEnd = addDays(istDayStart(today), 1);
+    const dayStart = businessDayStart(date);
+    const todayEnd = addDays(businessDayStart(today), 1);
 
     // shortcut: history is summed from raw orders each request; fine for a stall's volume, move to an aggregation if it gets slow
     const [dayOrders, historyOrders] = await Promise.all([
@@ -163,8 +178,8 @@ export const getPosOrders = async (req, res) => {
 
     const history = [];
     for (let i = 0; i < HISTORY_DAYS; i++) {
-      const d = istDateString(addDays(istDayStart(today), -i));
-      const { orders, cash, online, collected, unpaid } = summarize(bills.filter((b) => istDateString(b.createdAt) === d));
+      const d = businessDate(addDays(businessDayStart(today), -i));
+      const { orders, cash, online, collected, unpaid } = summarize(bills.filter((b) => businessDate(b.createdAt) === d));
       history.push({ date: d, orders, cash, online, collected, unpaid });
     }
 
@@ -179,7 +194,7 @@ export const getPosOrders = async (req, res) => {
 export const updatePosOrder = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, payment } = req.body;
+    const { status, payment, onlineAmount } = req.body;
     const order = await orderDB.findById(id);
     if (!order || order.address !== POS_ADDRESS) {
       return res.status(404).json({ success: false, message: "Order not found" });
@@ -190,8 +205,9 @@ export const updatePosOrder = async (req, res) => {
 
     const update = {};
     if (payment !== undefined) {
-      if (!PAYMENT[payment]) return res.status(400).json({ success: false, message: "Invalid payment type" });
-      Object.assign(update, PAYMENT[payment]);
+      const paid = paymentFields(payment, onlineAmount, order.totalAmount);
+      if (typeof paid === "string") return res.status(400).json({ success: false, message: paid });
+      Object.assign(update, paid);
     }
     if (status !== undefined) {
       if (!["Pending", "Delivered", "Cancelled"].includes(status)) {

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AppContext } from "../../context/AppContext";
-import { Plus, Minus, Search, ShoppingBag, User, X, Banknote, Smartphone, Clock, CheckCircle2, Trash2 } from "lucide-react";
+import { Plus, Minus, Search, ShoppingBag, User, X, Banknote, Smartphone, Clock, CheckCircle2, Trash2, Split } from "lucide-react";
 import toast from "react-hot-toast";
 import CustomizerModal from "../../components/CustomizerModal";
 
@@ -12,6 +12,7 @@ const hasOptions = (menu) => menu.customizationOptions?.hasExtraCream || menu.cu
 const PAYMENTS = [
   { id: "Cash", label: "Cash", icon: Banknote, active: "bg-green-600 border-green-600 text-white" },
   { id: "Online", label: "UPI / Online", icon: Smartphone, active: "bg-blue-600 border-blue-600 text-white" },
+  { id: "Split", label: "Cash + UPI", icon: Split, active: "bg-purple-600 border-purple-600 text-white" },
   { id: "Pending", label: "Pay later", icon: Clock, active: "bg-amber-500 border-amber-500 text-white" },
 ];
 
@@ -32,7 +33,7 @@ const loadDraft = () => {
 };
 
 const TakeOrder = () => {
-  const { menus, categories, axios, fetchMenus } = useContext(AppContext);
+  const { allMenus: menus, allCategories: categories, axios, fetchMenus } = useContext(AppContext);
   const draft = useMemo(loadDraft, []);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -42,6 +43,7 @@ const TakeOrder = () => {
   const [discountValue, setDiscountValue] = useState("");
   const [discountMode, setDiscountMode] = useState("₹");
   const [cashReceived, setCashReceived] = useState("");
+  const [onlinePart, setOnlinePart] = useState("");
   const [placing, setPlacing] = useState(false);
   const [customizing, setCustomizing] = useState(null);
   const [billOpen, setBillOpen] = useState(false);
@@ -79,9 +81,13 @@ const TakeOrder = () => {
   const rawDiscount = Number(discountValue) || 0;
   const discount = Math.min(subtotal, Math.max(0, Math.round(discountMode === "%" ? (subtotal * rawDiscount) / 100 : rawDiscount)));
   const total = subtotal - discount;
+  // Split: part paid by UPI, the rest in cash; change is worked out on the cash part only
+  const online = payment === "Split" ? Math.round(Number(onlinePart) || 0) : 0;
+  const splitInvalid = payment === "Split" && (online <= 0 || online >= total);
+  const cashDue = total - online;
   const received = Number(cashReceived) || 0;
-  const change = received - total;
-  const cashShort = payment === "Cash" && cashReceived !== "" && change < 0;
+  const change = received - cashDue;
+  const cashShort = (payment === "Cash" || payment === "Split") && cashReceived !== "" && change < 0;
 
   const addLine = (menuId, quantity = 1, customizations = {}) => {
     const menuItem = menus.find((m) => m._id === menuId);
@@ -102,24 +108,26 @@ const TakeOrder = () => {
     setLines([]);
     setCustomerName("");
     setPayment("Cash");
+    setOnlinePart("");
     setDiscountValue("");
     setCashReceived("");
   };
 
   const placeOrder = async () => {
-    if (!lines.length || placing || cashShort) return;
+    if (!lines.length || placing || cashShort || splitInvalid) return;
     try {
       setPlacing(true);
       const { data } = await axios.post("/api/order/pos", {
         items: lines.map((l) => ({ menuItem: l.menuItem._id, quantity: l.quantity, customizations: l.customizations })),
         customerName,
         payment,
+        onlineAmount: online || undefined,
         discount,
       });
       if (!data.success) return toast.error(data.message || "Could not place order");
       setLastOrder({
         ...data.order,
-        received: payment === "Cash" && cashReceived !== "" ? received : null,
+        received: cashReceived !== "" && (payment === "Cash" || payment === "Split") ? received : null,
       });
       resetBill();
       setBillOpen(true);
@@ -156,16 +164,20 @@ const TakeOrder = () => {
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Order #{String(lastOrder._id).slice(-5).toUpperCase()} placed</p>
           <p className="text-4xl font-black text-gray-800 mt-1">{rupee(lastOrder.totalAmount)}</p>
           <p className="text-sm font-semibold text-gray-500 mt-1">
-            {lastOrder.payment === "Pending" ? "To be paid later" : `Paid by ${lastOrder.payment === "Online" ? "UPI / Online" : "Cash"}`}
+            {lastOrder.payment === "Pending"
+              ? "To be paid later"
+              : lastOrder.payment === "Split"
+                ? `Paid ${rupee(lastOrder.online)} UPI + ${rupee(lastOrder.cash)} cash`
+                : `Paid by ${lastOrder.payment === "Online" ? "UPI / Online" : "Cash"}`}
             {lastOrder.customerName !== "Walk-in" && ` · ${lastOrder.customerName}`}
           </p>
           {lastOrder.received !== null && (
             <div className="mt-5 w-full max-w-xs rounded-2xl bg-green-50 border border-green-200 p-4">
               <p className="text-sm text-green-800">
-                Received {rupee(lastOrder.received)} − Bill {rupee(lastOrder.totalAmount)}
+                Received {rupee(lastOrder.received)} − {lastOrder.payment === "Split" ? "Cash part" : "Bill"} {rupee(lastOrder.cash)}
               </p>
               <p className="text-xs font-bold text-green-700 uppercase tracking-wider mt-2">Give back</p>
-              <p className="text-4xl font-black text-green-700">{rupee(lastOrder.received - lastOrder.totalAmount)}</p>
+              <p className="text-4xl font-black text-green-700">{rupee(lastOrder.received - lastOrder.cash)}</p>
             </div>
           )}
           <button onClick={() => { setLastOrder(null); setBillOpen(false); }} className="mt-6 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl">
@@ -253,7 +265,7 @@ const TakeOrder = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-1.5">
               {PAYMENTS.map(({ id, label, icon, active }) => {
                 const Icon = icon;
                 return (
@@ -268,7 +280,30 @@ const TakeOrder = () => {
               })}
             </div>
 
-            {payment === "Cash" && (
+            {payment === "Split" && (
+              <div className="bg-white rounded-xl border border-purple-200 p-3 space-y-2 tabular-nums">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-sm font-bold text-gray-600">Paid by UPI</span>
+                  <input
+                    type="number"
+                    min="1"
+                    inputMode="numeric"
+                    placeholder="₹ online"
+                    value={onlinePart}
+                    onChange={(e) => setOnlinePart(e.target.value)}
+                    className="w-28 px-2 py-1.5 border border-gray-200 rounded-lg text-right font-black outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div className={`flex justify-between items-baseline rounded-lg px-3 py-2 ${splitInvalid ? "bg-red-50 text-red-600" : "bg-purple-50 text-purple-700"}`}>
+                  <span className="text-xs font-bold">
+                    {splitInvalid ? `Enter ₹1 – ${rupee(total - 1)}` : `${rupee(total)} − ${rupee(online)} UPI = cash to take`}
+                  </span>
+                  {!splitInvalid && <span className="text-2xl font-black">{rupee(cashDue)}</span>}
+                </div>
+              </div>
+            )}
+
+            {(payment === "Cash" || (payment === "Split" && !splitInvalid)) && (
               <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-gray-600">Cash received</span>
@@ -283,16 +318,16 @@ const TakeOrder = () => {
                   />
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  {cashSuggestions(total).map((v) => (
+                  {cashSuggestions(cashDue).map((v) => (
                     <button key={v} onClick={() => setCashReceived(String(v))} className={`px-2.5 py-1 rounded-lg text-xs font-bold border ${received === v ? "bg-green-600 border-green-600 text-white" : "bg-gray-50 border-gray-200 text-gray-700 hover:border-green-400"}`}>
-                      {v === total ? "Exact" : rupee(v)}
+                      {v === cashDue ? "Exact" : rupee(v)}
                     </button>
                   ))}
                 </div>
                 {cashReceived !== "" && (
                   <div className={`flex justify-between items-baseline rounded-lg px-3 py-2 tabular-nums ${cashShort ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}>
                     <span className="text-xs font-bold">
-                      {rupee(received)} − {rupee(total)} = {cashShort ? "short by" : "give back"}
+                      {rupee(received)} − {rupee(cashDue)} = {cashShort ? "short by" : "give back"}
                     </span>
                     <span className="text-2xl font-black">{rupee(Math.abs(change))}</span>
                   </div>
@@ -302,10 +337,10 @@ const TakeOrder = () => {
 
             <button
               onClick={placeOrder}
-              disabled={placing || cashShort}
+              disabled={placing || cashShort || splitInvalid}
               className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-black text-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] transition"
             >
-              {placing ? "Placing..." : cashShort ? "Cash is short" : `Place order · ${rupee(total)}`}
+              {placing ? "Placing..." : splitInvalid ? "Enter the UPI amount" : cashShort ? "Cash is short" : `Place order · ${rupee(total)}`}
             </button>
           </div>
         </>

@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 export const AppContext = createContext();
 
@@ -20,8 +20,11 @@ const AppContextProvider = ({ children }) => {
   const [authReady, setAuthReady] = useState(false);
   const [user, setUser] = useState(null);
   const [admin, setAdmin] = useState(null);
-  const [categories, setCategories] = useState([]);
-  const [menus, setMenus] = useState([]);
+  const [allCategories, setCategories] = useState([]);
+  const [allMenus, setMenus] = useState([]);
+  // Counter-only items (e.g. water bottle) are sold at the stall, never on the website
+  const categories = useMemo(() => allCategories.filter((c) => !c.counterOnly), [allCategories]);
+  const menus = useMemo(() => allMenus.filter((m) => !m.counterOnly), [allMenus]);
 
   const [cart, setCart] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -187,8 +190,10 @@ const AppContextProvider = ({ children }) => {
     admin,
     setAdmin,
     categories,
+    allCategories,
     fetchCategories,
     menus,
+    allMenus,
     fetchMenus,
     addToCart,
     cartCount,

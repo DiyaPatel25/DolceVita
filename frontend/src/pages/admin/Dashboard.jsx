@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 const Dashboard = () => {
-  const { categories, menus, axios } = useContext(AppContext);
+  const { allCategories: categories, allMenus: menus, axios } = useContext(AppContext);
   const [recentOrders, setRecentOrders] = useState([]);
   const [revenueStats, setRevenueStats] = useState({ today: 0, count: 0 });
   const [loading, setLoading] = useState(true);

@@ -1,32 +1,15 @@
 import DataAccess from "../config/dataAccess.js";
-import { v2 as cloudinary } from "cloudinary";
+import { saveUploadedImage } from "../utils/imageStore.js";
 import { isMongoDBConnected } from "../config/db.js";
-import fs from "fs";
 
 // Initialize data access for Menu and Category
 const menuDB = new DataAccess('Menu');
 const categoryDB = new DataAccess('Category');
 
-const uploadImageToCloudinary = async (filePath) => {
-  const result = await cloudinary.uploader.upload(filePath, {
-    folder: "restaurant",
-  });
-  return result.secure_url;
-};
-
-const cleanupTempFile = (filePath) => {
-  if (filePath) {
-    fs.unlink(filePath, (err) => {
-      if (err) console.error("Error cleaning up temp file:", err);
-    });
-  }
-};
-
 export const addMenuItem = async (req, res) => {
   try {
     const { name, description, price, category, image, countInStock, lowStockThreshold } = req.body;
-    const uploadedImage = req.file ? await uploadImageToCloudinary(req.file.path) : image;
-    if (req.file) cleanupTempFile(req.file.path);
+    const uploadedImage = req.file ? await saveUploadedImage(req) : image;
 
     if (!name || !description || !price || !category || !uploadedImage) {
       return res
@@ -104,8 +87,7 @@ export const updateMenuItem = async (req, res) => {
 
     const updateData = {};
     if (req.file) {
-      updateData.image = await uploadImageToCloudinary(req.file.path);
-      cleanupTempFile(req.file.path);
+      updateData.image = await saveUploadedImage(req);
     } else if (image) {
       updateData.image = image;
     }

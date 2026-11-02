@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-hot-toast";
-import { ShoppingBag, ChevronLeft, ChevronRight, Banknote, Smartphone, Clock, CheckCircle2, XCircle, RotateCcw, Plus, RefreshCw } from "lucide-react";
+import { ShoppingBag, ChevronLeft, ChevronRight, Banknote, Smartphone, Clock, CheckCircle2, XCircle, RotateCcw, Plus, RefreshCw, Split } from "lucide-react";
 
 const rupee = (n) => `₹${Math.round(n || 0).toLocaleString("en-IN")}`;
 const shiftDate = (date, days) => {
@@ -18,6 +18,7 @@ const PAYMENT_BADGE = {
   Cash: { label: "Paid · Cash", cls: "bg-green-100 text-green-700", icon: Banknote },
   Online: { label: "Paid · Online", cls: "bg-blue-100 text-blue-700", icon: Smartphone },
   Pending: { label: "Not paid", cls: "bg-amber-100 text-amber-700", icon: Clock },
+  Split: { label: "Paid · Cash + UPI", cls: "bg-purple-100 text-purple-700", icon: Split },
 };
 
 const FILTERS = [
@@ -36,6 +37,8 @@ const PosOrders = () => {
   const [updating, setUpdating] = useState(null);
   const [filter, setFilter] = useState("all");
   const [confirmCancel, setConfirmCancel] = useState(null);
+  const [splitFor, setSplitFor] = useState(null); // order id whose split amount is being entered
+  const [splitOnline, setSplitOnline] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -214,7 +217,7 @@ const PosOrders = () => {
                       ) : (
                         <>
                           <span className={`px-2.5 py-1 rounded-full text-xs font-black flex items-center gap-1 ${badge.cls}`}>
-                            <BadgeIcon className="w-3.5 h-3.5" /> {badge.label}
+                            <BadgeIcon className="w-3.5 h-3.5" /> {order.payment === "Split" ? `Paid · ${rupee(order.online)} UPI + ${rupee(order.cash)} cash` : badge.label}
                           </span>
                           {served && <span className="px-2.5 py-1 rounded-full text-xs font-black bg-gray-100 text-gray-600 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Served</span>}
                         </>
@@ -261,6 +264,34 @@ const PosOrders = () => {
                           <button disabled={busy} onClick={() => update(order, { payment: "Online" }, "Marked paid online")} className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-black flex items-center gap-1.5 disabled:opacity-50">
                             <Smartphone className="w-4 h-4" /> Got online
                           </button>
+                          {splitFor === order._id ? (
+                            <span className="flex items-center gap-1.5 tabular-nums">
+                              <input
+                                type="number"
+                                min="1"
+                                inputMode="numeric"
+                                autoFocus
+                                placeholder="₹ UPI"
+                                value={splitOnline}
+                                onChange={(e) => setSplitOnline(e.target.value)}
+                                className="w-20 px-2 py-2 border border-purple-300 rounded-lg text-right font-black outline-none focus:border-purple-500"
+                              />
+                              <span className="text-xs font-bold text-gray-500">
+                                {Number(splitOnline) > 0 && Number(splitOnline) < order.totalAmount ? `+ ${rupee(order.totalAmount - Number(splitOnline))} cash` : "UPI part"}
+                              </span>
+                              <button
+                                disabled={busy || !(Number(splitOnline) > 0 && Number(splitOnline) < order.totalAmount)}
+                                onClick={() => { setSplitFor(null); update(order, { payment: "Split", onlineAmount: Number(splitOnline) }, "Marked paid: cash + UPI"); }}
+                                className="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-black disabled:opacity-50"
+                              >
+                                Save
+                              </button>
+                            </span>
+                          ) : (
+                            <button disabled={busy} onClick={() => { setSplitFor(order._id); setSplitOnline(""); }} className="px-3 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-sm font-black flex items-center gap-1.5 disabled:opacity-50">
+                              <Split className="w-4 h-4" /> Cash + UPI
+                            </button>
+                          )}
                         </>
                       ) : (
                         <button disabled={busy} onClick={() => update(order, { payment: "Pending" }, "Marked as not paid")} className="px-3 py-2 rounded-lg text-gray-500 hover:bg-gray-200 text-sm font-bold flex items-center gap-1.5 disabled:opacity-50">

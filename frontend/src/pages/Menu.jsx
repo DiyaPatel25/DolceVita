@@ -5,7 +5,7 @@ import { Search, X, ShoppingCart } from "lucide-react";
 import MenuCard from "../components/MenuCard";
 
 const Menu = () => {
-  const { menus } = useContext(AppContext);
+  const { menus, categories } = useContext(AppContext);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
 
@@ -78,21 +78,6 @@ const Menu = () => {
               : "Freshly made with the finest ingredients - pick your favourites!"}
           </p>
 
-          {selectedCategoryName && (
-            <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/35 px-4 py-2 shadow-sm bg-white/10 backdrop-blur-sm">
-              <span className="text-sm font-semibold text-white">
-                Category: {selectedCategoryName}
-              </span>
-              <button
-                type="button"
-                onClick={clearCategory}
-                className="text-sm font-semibold text-yellow-300 hover:text-yellow-200"
-              >
-                View all
-              </button>
-            </div>
-          )}
-
           <div className="max-w-xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/70 w-5 h-5" />
@@ -117,6 +102,23 @@ const Menu = () => {
                 </button>
               )}
             </div>
+          </div>
+
+          <div className="mt-5 flex gap-2 overflow-x-auto pb-1 no-scrollbar md:flex-wrap md:justify-center">
+            {[{ _id: null, name: "All" }, ...categories].map((cat) => {
+              const active = cat._id ? selectedCategoryId === cat._id : !selectedCategoryId;
+              return (
+                <button
+                  key={cat._id || "all"}
+                  type="button"
+                  onClick={() => (cat._id ? setSearchParams({ categoryId: cat._id, categoryName: cat.name }) : clearCategory())}
+                  aria-pressed={active}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap border transition-colors ${active ? "bg-yellow-400 border-yellow-400 text-black" : "bg-black/35 border-white/30 text-white hover:bg-black/50 backdrop-blur-sm"}`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
           </div>
         </div>
 

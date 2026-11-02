@@ -4,7 +4,7 @@ import { Trash2, ImageOff, Tag, Search, X } from "lucide-react";
 import toast from "react-hot-toast";
 
 const Categories = () => {
-  const { categories, menus, fetchCategories, axios } = useContext(AppContext);
+  const { allCategories: categories, allMenus: menus, fetchCategories, axios } = useContext(AppContext);
   const [query, setQuery] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(null);
   const q = query.trim().toLowerCase();

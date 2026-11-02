@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import crypto from "crypto";
 import razorpay from "../config/razorpay.js";
-import { priceCustomizations, istDateString, istDayStart, addDays } from "../utils/orderMath.js";
+import { priceCustomizations, businessDate, businessDayStart, addDays, paidAmounts } from "../utils/orderMath.js";
 
 // Initialize data access for Order, Cart, Menu, and User
 const orderDB = new DataAccess('Order');
@@ -233,7 +233,7 @@ export const placeOrder = async (req, res) => {
           }))
         );
 
-    if (resolvedItems.some((item) => !item.menuItem)) {
+    if (resolvedItems.some((item) => !item.menuItem || item.menuItem.counterOnly)) {
       return res.status(400).json({ message: "One or more cart items could not be found", success: false });
     }
     resolvedItems = resolvedItems.map((item) => ({
@@ -423,8 +423,8 @@ export const updateOrderStatus = async (req, res) => {
 
 export const calculateDailyRevenue = async (req, res) => {
   try {
-    const dateString = istDateString();
-    const today = istDayStart(dateString);
+    const dateString = businessDate();
+    const today = businessDayStart(dateString);
     const tomorrow = addDays(today, 1);
 
     // For DataAccess compatibility, we may need to filter locally if not using MongoDB
@@ -449,12 +449,10 @@ export const calculateDailyRevenue = async (req, res) => {
     let onlineRevenue = 0;
 
     for (let order of todayOrders) {
+      const { cash, online } = paidAmounts(order); // split payments count toward both
       totalRevenue += order.totalAmount;
-      if (order.paymentMethod === "Online Payment") {
-        onlineRevenue += order.totalAmount;
-      } else {
-        cashRevenue += order.totalAmount; // Pay at Counter, Cash, etc.
-      }
+      cashRevenue += cash;
+      onlineRevenue += online;
     }
 
     let revenueRecord;

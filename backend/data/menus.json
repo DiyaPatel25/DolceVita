@@ -7,12 +7,13 @@
     "image": "https://images.unsplash.com/photo-1622621746668-59fb299bc4d7?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-dark-cocoa-cheesecake",
@@ -22,12 +23,13 @@
     "image": "https://images.unsplash.com/photo-1683654974368-23a8b4386b41?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-nutella-silk-swirl-cheesecake",
@@ -37,12 +39,13 @@
     "image": "https://images.unsplash.com/photo-1708175313814-679cb8e90d2e?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kitkat-break-cheesecake",
@@ -52,12 +55,13 @@
     "image": "https://images.unsplash.com/photo-1695886855883-d7162c1e3b09?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-oreo-frostbite-cheesecake",
@@ -67,12 +71,13 @@
     "image": "https://images.unsplash.com/photo-1623548694299-c3eb13a26c5b?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-blueberry-velvet-bloom-cheesecake",
@@ -82,12 +87,13 @@
     "image": "https://images.unsplash.com/photo-1695088957420-c3b97d1f1138?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-golden-crunch-biscoff-cheesecake",
@@ -97,12 +103,13 @@
     "image": "https://images.unsplash.com/photo-1771220433638-173b9579d199?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-choco-almond-crunch-cheesecake",
@@ -112,12 +119,13 @@
     "image": "https://images.unsplash.com/photo-1782839757699-52f9e3607bb5?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kunafa-pistachio-cheesecake",
@@ -127,12 +135,13 @@
     "image": "https://images.unsplash.com/photo-1716579862099-acd0967de37b?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cheesecakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-single-chocolate-brownie",
@@ -142,12 +151,13 @@
     "image": "https://images.unsplash.com/photo-1605190557072-1fe6a230ee65?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-double-chocolate-brownie",
@@ -157,12 +167,13 @@
     "image": "https://images.unsplash.com/photo-1636743715220-d8f8dd900b87?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-triple-chocolate-brownie",
@@ -172,12 +183,13 @@
     "image": "https://images.unsplash.com/photo-1606313564573-104197cf8f91?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-choco-almond-crunch-brownie",
@@ -187,12 +199,13 @@
     "image": "https://images.unsplash.com/photo-1608732221156-40cb3ed65b9b?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-oreo-frostbite-brownie",
@@ -202,12 +215,13 @@
     "image": "https://images.unsplash.com/photo-1588258382591-5725de4bb861?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kitkat-break-brownie",
@@ -217,12 +231,13 @@
     "image": "https://images.unsplash.com/photo-1611060516311-84aab2454de8?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-golden-crunch-biscoff-brownie",
@@ -232,12 +247,13 @@
     "image": "https://images.unsplash.com/photo-1599743527873-5930a502cfc4?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-nutella-brownie",
@@ -247,12 +263,13 @@
     "image": "https://images.unsplash.com/photo-1587825180295-71aeff48feed?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-dolce-vita-signature-brownie",
@@ -262,12 +279,13 @@
     "image": "https://images.unsplash.com/photo-1624353365286-3f8d62daad51?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-brownies",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-single-chocolate-cake-bowl",
@@ -277,12 +295,13 @@
     "image": "https://images.unsplash.com/photo-1590080874810-8180c3eb1016?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-double-chocolate-cake-bowl",
@@ -292,12 +311,13 @@
     "image": "https://images.unsplash.com/photo-1673551494277-92204546b504?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-triple-chocolate-cake-bowl",
@@ -307,12 +327,13 @@
     "image": "https://images.unsplash.com/photo-1678436655716-3f33818e5311?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-oreo-frostbite-cake-bowl",
@@ -322,12 +343,13 @@
     "image": "https://images.unsplash.com/photo-1616534052904-a8093e507360?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kitkat-break-cake-bowl",
@@ -337,12 +359,13 @@
     "image": "https://images.unsplash.com/photo-1628585352636-f4a24c2e17d5?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-choco-almond-crunch-cake-bowl",
@@ -352,12 +375,13 @@
     "image": "https://images.unsplash.com/photo-1737700087822-0dfbb754db30?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-strawberry-burst-cake-bowl",
@@ -367,12 +391,13 @@
     "image": "https://images.unsplash.com/photo-1749280446205-93b204271142?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-dolce-vita-signature-cake-bowl",
@@ -382,12 +407,13 @@
     "image": "https://images.unsplash.com/photo-1629980173135-9b01683515f5?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-cake-bowls",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kitkat-break-tub-cake",
@@ -397,12 +423,13 @@
     "image": "https://images.unsplash.com/photo-1584818676673-f034ea74ccfc?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-tub-cakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-oreo-frostbite-tub-cake",
@@ -412,12 +439,13 @@
     "image": "https://images.unsplash.com/photo-1626263468007-a9e0cf83f1ac?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-tub-cakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-nutella-silk-swirl-tub-cake",
@@ -427,12 +455,13 @@
     "image": "https://images.unsplash.com/photo-1673874500167-17ca5ed1cf17?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-tub-cakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-strawberry-choco-burst-tub-cake",
@@ -442,12 +471,13 @@
     "image": "https://images.unsplash.com/photo-1733590109295-7b69a44781ab?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-tub-cakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-dream-dark-cocoa-tub-cake",
@@ -457,12 +487,13 @@
     "image": "https://images.unsplash.com/photo-1709195902163-7eee13e78970?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-tub-cakes",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-single-chocolate-waffle",
@@ -472,12 +503,13 @@
     "image": "https://images.unsplash.com/photo-1613483515012-8879be29b578?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-double-chocolate-waffle",
@@ -487,12 +519,13 @@
     "image": "https://images.unsplash.com/photo-1721078917681-40f74d16d7b7?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-triple-chocolate-waffle",
@@ -502,12 +535,13 @@
     "image": "https://images.unsplash.com/photo-1652101898564-034889096be4?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-kitkat-break-waffle",
@@ -517,12 +551,13 @@
     "image": "https://images.unsplash.com/photo-1680457759468-53634c550489?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-oreo-frostbite-waffle",
@@ -532,12 +567,13 @@
     "image": "https://images.unsplash.com/photo-1675194588436-9c76aa85795d?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-biscoff-waffle",
@@ -547,12 +583,13 @@
     "image": "https://images.unsplash.com/photo-1625860927329-df5602da7729?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-nutella-silk-swirl-waffle",
@@ -562,12 +599,13 @@
     "image": "https://images.unsplash.com/photo-1634215751955-5bdb12db6c0c?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-strawberry-choco-burst-waffle",
@@ -577,12 +615,13 @@
     "image": "https://images.unsplash.com/photo-1701694472041-fc7faca1bdb6?w=600&q=70&auto=format&fit=crop",
     "isCustomizable": false,
     "customizationOptions": {},
+    "counterOnly": false,
     "category": "cat-waffles",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-single-chocolate-london-strawberry",
@@ -608,12 +647,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-double-chocolate-london-strawberry",
@@ -639,12 +679,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-triple-chocolate-london-strawberry",
@@ -670,12 +711,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-nutella-london-strawberry",
@@ -701,12 +743,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-with-brownie-london-strawberry",
@@ -732,12 +775,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-pistachio-london-strawberry",
@@ -763,12 +807,13 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   },
   {
     "_id": "menu-wafer-strawberry-chocolate-london-strawberry",
@@ -794,11 +839,28 @@
         }
       ]
     },
+    "counterOnly": false,
     "category": "cat-london-chocolate-strawberry",
     "isAvailable": true,
     "countInStock": 20,
     "lowStockThreshold": 5,
-    "createdAt": "2026-10-31T12:55:52.091Z",
-    "updatedAt": "2026-10-31T12:55:52.091Z"
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
+  },
+  {
+    "_id": "menu-water-bottle",
+    "name": "Water Bottle",
+    "description": "Packaged drinking water.",
+    "price": 10,
+    "image": "https://images.unsplash.com/photo-1616118132534-381148898bb4?w=600&q=70&auto=format&fit=crop",
+    "isCustomizable": false,
+    "customizationOptions": {},
+    "counterOnly": true,
+    "category": "cat-beverages",
+    "isAvailable": true,
+    "countInStock": 20,
+    "lowStockThreshold": 5,
+    "createdAt": "2026-11-02T18:13:38.352Z",
+    "updatedAt": "2026-11-02T18:13:38.352Z"
   }
 ]

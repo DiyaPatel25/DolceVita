@@ -12,13 +12,11 @@ import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 
-import connectCloudinary from "./config/cloudinary.js";
 import Razorpay from "razorpay";
 const app = express();
 // Behind Render/Vercel proxy: without this every visitor shares the proxy IP and one rate-limit bucket
 app.set("trust proxy", 1);
 
-connectCloudinary();
 
 
 
@@ -45,6 +43,8 @@ const globalLimiter = rateLimit({
   max: 300, // per IP per 15 minutes; a single page load already fires several API calls
   standardHeaders: true,
   legacyHeaders: false,
+  // A menu page loads many photos; they are cached by the browser and must not use up the visitor's quota
+  skip: (req) => req.path.startsWith("/api/menu/image/"),
 });
 app.use(globalLimiter);
 
@@ -99,8 +99,10 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ success: false, message: "Internal server error" });
+  // Upload problems (too big, not an image) are the user's to fix, so say what went wrong
+  if (err.name === "MulterError") err.status = 400;
+  if (!err.status) console.error(err.stack);
+  res.status(err.status || 500).json({ success: false, message: err.status ? err.message : "Internal server error" });
 });
 
 // Connect before accepting traffic so early requests don't fall back to the local JSON store

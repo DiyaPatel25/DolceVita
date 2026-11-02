@@ -8,6 +8,7 @@ import Cart from '../models/cartModel.js';
 import Order from '../models/orderModel.js';
 import Revenue from '../models/revenueModel.js';
 import Contact from '../models/contactModel.js';
+import Image from '../models/imageModel.js';
 
 // Model mapping
 const modelMap = {
@@ -17,7 +18,8 @@ const modelMap = {
   Cart,
   Order,
   Revenue,
-  Contact
+  Contact,
+  Image
 };
 
 // Local storage instances
@@ -28,7 +30,8 @@ const localStorageMap = {
   Cart:     new LocalStorage('carts'),
   Order:    new LocalStorage('orders'),
   Revenue:  new LocalStorage('revenues'),
-  Contact:  new LocalStorage('contacts')
+  Contact:  new LocalStorage('contacts'),
+  Image:    new LocalStorage('images')
 };
 
 class DataAccess {

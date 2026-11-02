@@ -1,10 +1,11 @@
 import { AppContext } from "../../context/AppContext";
+import { compressImage } from "../../utils/compressImage";
 import { useEffect, useState, useContext } from "react";
 import toast from "react-hot-toast";
 import { Utensils, DollarSign, AlignLeft, Tag, Image, Plus } from "lucide-react";
 
 const AddMenu = () => {
-  const { axios, navigate, loading, setLoading, categories, fetchMenus } = useContext(AppContext);
+  const { axios, navigate, loading, setLoading, allCategories: categories, fetchMenus } = useContext(AppContext);
   const [formData, setFormData] = useState({ name: "", price: "", description: "", category: "", image: "" });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -30,13 +31,14 @@ const AddMenu = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const payload = imageFile ? (() => {
+      const photo = imageFile && (await compressImage(imageFile));
+      const payload = photo ? (() => {
         const data = new FormData();
         data.append("name", formData.name);
         data.append("price", formData.price);
         data.append("description", formData.description);
         data.append("category", formData.category);
-        data.append("image", imageFile);
+        data.append("image", photo);
         return data;
       })() : formData;
 
@@ -71,7 +73,9 @@ const AddMenu = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
         <form onSubmit={handleSubmit} className="space-y-5">
-          {fields.map(({ name, label, icon: Icon, type, placeholder }) => (
+          {fields.map(({ name, label, icon, type, placeholder }) => {
+            const Icon = icon;
+            return (
             <div key={name}>
               <label className="block text-sm font-semibold text-gray-700 mb-2">{label}{name !== "image" ? " *" : ""}</label>
               <div className="flex items-center gap-3 px-4 h-12 rounded-xl border border-gray-200 bg-gray-50 focus-within:border-orange-400 focus-within:bg-white transition-all duration-200">
@@ -87,7 +91,8 @@ const AddMenu = () => {
                 />
               </div>
             </div>
-          ))}
+            );
+          })}
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Or upload from device</label>
