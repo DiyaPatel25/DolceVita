@@ -4,14 +4,14 @@ import Menu from "./pages/Menu";
 import MenuDetails from "./pages/MenuDetails";
 import SpecialOrders from "./pages/SpecialOrders";
 import Cart from "./pages/Cart";
-import Checkout from "./pages/Checkout";
+import OrderPlaced from "./pages/OrderPlaced";
 import MyOrders from "./pages/MyOrders";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
 import Footer from "./components/Footer";
-import { lazy, Suspense, useContext } from "react";
+import { lazy, Suspense, useContext, useEffect } from "react";
 import { AppContext } from "./context/AppContext";
 import FloatingCart from "./components/FloatingCart";
 
@@ -44,11 +44,21 @@ const AdminGuard = ({ children }) => {
 };
 
 const App = () => {
-  const adminPath = useLocation().pathname.includes("admin");
+  const { pathname } = useLocation();
+  const adminPath = pathname.includes("admin");
+
+  // A new page starts at the top, not wherever the last one was scrolled to
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
-      <Toaster position="top-right" toastOptions={{ style: { fontFamily: 'Inter, sans-serif' } }} />
+    // Admin keeps its own light styling; only the customer site follows the chalkboard/light theme
+    <div className="min-h-screen" style={adminPath ? undefined : { backgroundColor: 'var(--bg-color)', color: 'var(--text-color)' }}>
+      <Toaster
+        position={adminPath ? "top-right" : "top-center"}
+        toastOptions={adminPath ? { style: { fontFamily: 'Inter, sans-serif' } } : { style: { background: 'var(--card-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)' } }}
+      />
       {!adminPath && <Navbar />}
       {!adminPath && <FloatingCart />}
       <Suspense fallback={<Spinner />}>
@@ -58,7 +68,8 @@ const App = () => {
         <Route path="/menu-details/:id" element={<MenuDetails />} />
         <Route path="/special-orders" element={<SpecialOrders />} />
         <Route path="/cart" element={<Cart />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout" element={<Cart />} />
+        <Route path="/order-placed" element={<OrderPlaced />} />
         <Route path="/my-orders" element={<MyOrders />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

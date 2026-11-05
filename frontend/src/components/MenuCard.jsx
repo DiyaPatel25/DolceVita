@@ -1,134 +1,79 @@
 import { useContext, useState } from "react";
 import { AppContext } from "../context/AppContext";
-import { ShoppingCart, Plus, Minus } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import CustomizerModal from "./CustomizerModal";
 
+// One item: a list row on phones (like a line on the printed board), a photo card from `sm` up
 const MenuCard = ({ menu }) => {
   const { navigate, addToCart, cart, axios, fetchCartData } = useContext(AppContext);
   const [showCustomizer, setShowCustomizer] = useState(false);
 
-  // Find quantity of this item in cart
-  const cartItem = cart?.items?.find(
-    (i) => i.menuItem?._id === menu._id || i.menuItem === menu._id
-  );
-  const quantity = cartItem?.quantity || 0;
+  const lines = (cart?.items || []).filter((i) => i.menuItem?._id === menu._id || i.menuItem === menu._id);
+  const quantity = lines.reduce((sum, i) => sum + i.quantity, 0);
 
+  // Items with extras are stored as separate lines; take one off the most recent line
   const removeOne = async () => {
-    if (quantity <= 1) {
-      // remove entirely
-      await axios.delete(`/api/cart/remove/${menu._id}`);
-    } else {
-      await axios.post("/api/cart/add", { menuId: menu._id, quantity: -1 });
-    }
+    const line = lines[lines.length - 1];
+    if (!line) return;
+    if (quantity <= 1) await axios.delete(`/api/cart/remove/${menu._id}`);
+    else await axios.post("/api/cart/add", { menuId: menu._id, quantity: -1, customizations: line.customizations });
     fetchCartData();
   };
 
-  const handleAddClick = () => {
-    if (menu.isCustomizable) {
-      setShowCustomizer(true);
-    } else {
-      addToCart(menu._id);
-    }
-  };
+  const add = () => (menu.isCustomizable ? setShowCustomizer(true) : addToCart(menu._id));
+  const openDetails = () => navigate(`/menu-details/${menu._id}`);
 
-  const handleCustomizerAdd = (menuId, qty, customizations) => {
-    addToCart(menuId, qty, customizations);
-  };
+  const stepper = quantity === 0 ? (
+    <button
+      onClick={add}
+      className="w-full py-2 rounded-xl bg-copper-500 hover:bg-copper-400 text-chalk text-sm font-bold shadow-md transition-colors"
+      aria-label={`Add ${menu.name}`}
+    >
+      Add{menu.isCustomizable ? " +" : ""}
+    </button>
+  ) : (
+    <div className="flex items-center justify-between rounded-xl bg-copper-500 text-chalk shadow-md">
+      <button onClick={removeOne} className="w-9 h-9 flex items-center justify-center" aria-label={`Remove one ${menu.name}`}>
+        <Minus size={16} />
+      </button>
+      <span className="text-sm font-bold" aria-live="polite">{quantity}</span>
+      <button onClick={add} className="w-9 h-9 flex items-center justify-center" aria-label={`Add one more ${menu.name}`}>
+        <Plus size={16} />
+      </button>
+    </div>
+  );
 
   return (
     <>
-      {/* ─── Mobile Zomato Layout (< 640px) ─── */}
-      <div className="flex sm:hidden items-center justify-between p-3 gap-3 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm transition-all" style={{ backgroundColor: 'var(--card-bg)' }}>
-        <div className="flex-1 min-w-0 pr-1">
-          <h3 className="text-sm font-bold truncate mb-1" style={{ color: 'var(--text-color)' }}>{menu.name}</h3>
-          <p className="text-sm font-black text-orange-500 mb-1.5">₹{menu.price}</p>
-          <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{menu.description}</p>
+      <article
+        className="flex sm:flex-col gap-4 sm:gap-0 py-4 sm:py-0 border-b sm:border sm:rounded-2xl sm:overflow-hidden sm:shadow-sm"
+        style={{ borderColor: "var(--border-color)", backgroundColor: "var(--card-bg)" }}
+      >
+        <div className="order-2 sm:order-1 relative shrink-0 w-32 sm:w-full pb-4 sm:pb-0">
+          <button onClick={openDetails} className="block w-32 h-28 sm:w-full sm:h-auto sm:aspect-[4/3] rounded-xl sm:rounded-none overflow-hidden" aria-label={`View ${menu.name}`}>
+            <img src={menu.image} alt="" loading="lazy" className="w-full h-full object-cover" />
+          </button>
+          <div className="absolute left-1/2 -translate-x-1/2 bottom-0 w-24 sm:hidden">{stepper}</div>
         </div>
 
-        <div className="relative w-28 shrink-0 pb-3.5">
-          <div onClick={() => navigate(`/menu-details/${menu._id}`)} className="w-28 h-24 rounded-xl overflow-hidden cursor-pointer relative shadow-sm bg-gray-50 dark:bg-gray-800">
-            <img src={menu.image} alt={menu.name} className="w-full h-full object-cover" />
-          </div>
-
-          <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 z-10 w-24">
-            {quantity === 0 ? (
-              <button
-                onClick={handleAddClick}
-                className="w-full py-1.5 rounded-lg text-xs font-black uppercase tracking-wider shadow-md border transition-all flex items-center justify-center gap-1 hover:opacity-90 active:scale-95 cursor-pointer"
-                style={{ backgroundColor: 'var(--card-bg)', color: '#ea580c', borderColor: '#fdba74' }}
-              >
-                {menu.isCustomizable ? "ADD +" : "ADD"}
-              </button>
-            ) : (
-              <div className="flex items-center justify-between bg-orange-500 text-white rounded-lg shadow-md py-1 px-1.5">
-                <button onClick={removeOne} className="w-6 h-6 flex items-center justify-center font-bold text-sm active:scale-90"><Minus className="w-3.5 h-3.5" /></button>
-                <span className="text-xs font-bold">{quantity}</span>
-                <button onClick={handleAddClick} className="w-6 h-6 flex items-center justify-center font-bold text-sm active:scale-90"><Plus className="w-3.5 h-3.5" /></button>
-              </div>
-            )}
-          </div>
+        <div className="order-1 sm:order-2 flex-1 min-w-0 sm:p-4 sm:flex sm:flex-col">
+          <button onClick={openDetails} className="text-left">
+            <h3 className="font-bold leading-snug">{menu.name}</h3>
+          </button>
+          <p className="mt-1 font-bold text-copper-500">₹{menu.price}</p>
+          <p className="mt-1.5 text-sm leading-relaxed line-clamp-2" style={{ color: "var(--text-secondary)" }}>{menu.description}</p>
+          <div className="hidden sm:block mt-auto pt-4">{stepper}</div>
         </div>
-      </div>
+      </article>
 
-      {/* ─── Desktop Rich Grid Card (>= 640px) ─── */}
-      <div className="hidden sm:block rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 group" style={{ backgroundColor: 'var(--card-bg)' }}>
-        {/* Image */}
-        <div onClick={() => navigate(`/menu-details/${menu._id}`)} className="relative h-52 overflow-hidden cursor-pointer">
-          <img
-            src={menu.image}
-            alt={menu.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          />
-          {quantity > 0 && (
-            <div className="absolute top-3 right-3 w-7 h-7 rounded-full bg-orange-500 text-white text-sm font-bold flex items-center justify-center shadow-lg">
-              {quantity}
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-4">
-          <h3 className="text-base font-bold mb-1 line-clamp-1" style={{ color: 'var(--text-color)' }}>{menu.name}</h3>
-          <p className="text-xs mb-3 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{menu.description}</p>
-
-          <div className="flex items-center justify-between">
-            <p className="text-xl font-black" style={{ color: 'var(--text-color)' }}>₹{menu.price}</p>
-
-            {quantity === 0 ? (
-              <button
-                onClick={handleAddClick}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-orange-500 hover:bg-orange-600 text-white hover:scale-105 hover:shadow-md active:scale-95"
-              >
-                <ShoppingCart className="w-3.5 h-3.5" />
-                {menu.isCustomizable ? "Customize" : "Add"}
-              </button>
-            ) : (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={removeOne}
-                  className="w-8 h-8 rounded-full bg-orange-100 hover:bg-orange-200 text-orange-600 flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                >
-                  <Minus className="w-3.5 h-3.5" />
-                </button>
-                <span className="font-bold text-sm w-5 text-center" style={{ color: 'var(--text-color)' }}>{quantity}</span>
-                <button
-                  onClick={handleAddClick}
-                  className="w-8 h-8 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center transition-all hover:scale-110 active:scale-95"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <CustomizerModal
-        item={menu}
-        isOpen={showCustomizer}
-        onClose={() => setShowCustomizer(false)}
-        onAddToCart={handleCustomizerAdd}
-      />
+      {showCustomizer && (
+        <CustomizerModal
+          item={menu}
+          isOpen
+          onClose={() => setShowCustomizer(false)}
+          onAddToCart={(menuId, qty, customizations) => addToCart(menuId, qty, customizations)}
+        />
+      )}
     </>
   );
 };

@@ -31,7 +31,7 @@ const AppContextProvider = ({ children }) => {
 
   // Theme state
   const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const savedTheme = localStorage.getItem('theme') || 'dark'; // chalkboard look by default
     // Apply theme synchronously on initialization
     if (savedTheme === 'dark') {
       document.body.classList.add('dark-theme');
@@ -82,12 +82,6 @@ const AppContextProvider = ({ children }) => {
   const cartCount = cart?.items?.reduce((acc, item) => acc + item.quantity, 0) ?? 0;
   // 🔹 Add to Cart function
   const addToCart = async (menuId, quantity = 1, customizations = {}) => {
-    if (!user) {
-      toast.error("Please log in to add items to cart");
-      navigate("/login");
-      return;
-    }
-
     try {
       const payload = {
         menuId,
@@ -100,7 +94,7 @@ const AppContextProvider = ({ children }) => {
 
       const { data } = await axios.post("/api/cart/add", payload);
       if (data.success) {
-        toast.success(data.message);
+        toast.success("Added to your order", { id: "cart-add" }); // one toast, not a stack, on repeated taps
         fetchCartData();
       } else {
         toast.error(data.message);

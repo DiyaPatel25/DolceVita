@@ -21,46 +21,39 @@ const Categories = () => {
     navigate(`/menu?${params}`);
   };
 
+  const itemCount = (cat) => menus.filter((m) => (m.category?._id ?? m.category) === cat._id).length;
+
   return (
-    <section className="py-16" style={{ backgroundColor: 'var(--bg-color)' }}>
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="text-4xl font-bold mb-4" style={{ color: 'var(--text-color)' }}>
-          {" "}
-          Explore Our <span className="text-yellow-500">Categories</span>
-        </h2>
-        <p className="mb-6" style={{ color: 'var(--text-secondary)' }}> Discover delicious dishes from our carefully curated categories</p>
-        <div className="mb-10">
-          <SearchBox value={query} onChange={setQuery} placeholder="Search categories or dishes..." />
+    <section className="py-16" style={{ backgroundColor: "var(--bg-color)" }}>
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="md:flex md:items-end md:justify-between md:gap-8">
+          <div>
+            <h2 className="font-display text-3xl md:text-4xl font-semibold tracking-wide">What are you craving?</h2>
+            <p className="mt-2" style={{ color: "var(--text-secondary)" }}>Pick a section, or search for a flavour like Oreo or Biscoff.</p>
+          </div>
+          <div className="mt-5 md:mt-0 md:w-80 shrink-0">
+            <SearchBox value={query} onChange={setQuery} placeholder="Search categories or dishes..." />
+          </div>
         </div>
+
         {visible.length === 0 && (
-          <p className="py-6" style={{ color: 'var(--text-secondary)' }}>No categories match "{query}"</p>
+          <p className="py-10 text-center" style={{ color: "var(--text-secondary)" }}>No sections or dishes match "{query}". Try another flavour.</p>
         )}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
+        <div className="mt-8 -mx-4 px-4 flex gap-5 overflow-x-auto no-scrollbar snap-x md:grid md:grid-cols-6 md:overflow-visible md:mx-0 md:px-0">
           {visible.map((cat) => (
             <button
               key={cat._id}
               type="button"
               onClick={() => handleCategoryClick(cat)}
-              className="cursor-pointer group text-center"
+              className="group snap-start shrink-0 w-28 md:w-auto text-center"
             >
-              <div className="relative">
-                <div className="w-32 h-32 mx-auto rounded-full overflow-hidden shadow-lg border-4 border-white group-hover:border-yellow-400 transition-all duration-300 group-hover:scale-110 group-hover:shadow-2xl">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
-                <div className="absolute inset-0 w-32 h-32 mx-auto rounded-full bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="w-24 h-24 md:w-32 md:h-32 mx-auto rounded-full overflow-hidden ring-2 ring-[var(--border-color)] group-hover:ring-copper-500 transition">
+                <img src={cat.image} alt="" className="w-full h-full object-cover" />
               </div>
-              <div className="mt-4">
-                <h3 className="font-semibold group-hover:text-yellow-500 transition-colors duration-300" style={{ color: 'var(--text-color)' }}>
-                  {cat.name}
-                </h3>
-                <p className="mt-1 text-xs uppercase tracking-wide" style={{ color: 'var(--text-secondary)' }}>
-                  {cat.hits > 0 ? `${cat.hits} matching ${cat.hits === 1 ? "item" : "items"}` : "View items"}
-                </p>
-              </div>
+              <p className="mt-3 font-semibold leading-tight">{cat.name}</p>
+              <p className="mt-0.5 text-xs" style={{ color: "var(--text-secondary)" }}>
+                {cat.hits > 0 ? `${cat.hits} matching` : `${itemCount(cat)} items`}
+              </p>
             </button>
           ))}
         </div>

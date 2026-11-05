@@ -3,7 +3,7 @@ import { AppContext } from "../context/AppContext";
 import { ShoppingBag, Clock, CheckCircle, ChefHat, Package } from "lucide-react";
 
 const STATUS_CONFIG = {
-  Pending:    { label: "Pending",    color: "bg-yellow-100 text-yellow-700",  icon: Clock,        dot: "bg-yellow-400" },
+  Pending:    { label: "Pending",    color: "bg-copper-100 text-copper-700",  icon: Clock,        dot: "bg-copper-400" },
   Preparing:  { label: "Preparing",  color: "bg-blue-100 text-blue-700",      icon: ChefHat,      dot: "bg-blue-400"   },
   Ready:      { label: "Ready",      color: "bg-green-100 text-green-700",    icon: Package,      dot: "bg-green-400"  },
   Delivered:  { label: "Delivered",  color: "bg-gray-100 text-gray-600",      icon: CheckCircle,  dot: "bg-gray-400"   },
@@ -46,7 +46,7 @@ const MyOrders = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)' }}>
         <div className="flex flex-col items-center gap-3">
-          <svg className="animate-spin w-10 h-10 text-orange-500" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-10 h-10 text-copper-500" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
           </svg>
@@ -60,12 +60,12 @@ const MyOrders = () => {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)' }}>
         <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-orange-50 flex items-center justify-center mx-auto mb-4">
-            <ShoppingBag className="w-10 h-10 text-orange-400" />
+          <div className="w-20 h-20 rounded-full bg-copper-50 flex items-center justify-center mx-auto mb-4">
+            <ShoppingBag className="w-10 h-10 text-copper-400" />
           </div>
           <h2 className="text-xl font-bold mb-2" style={{ color: 'var(--text-color)' }}>No orders yet</h2>
           <p className="text-sm mb-5" style={{ color: 'var(--text-secondary)' }}>Start by browsing our menu!</p>
-          <button onClick={() => navigate("/menu")} className="px-6 py-2.5 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition">
+          <button onClick={() => navigate("/menu")} className="px-6 py-2.5 rounded-full bg-copper-500 hover:bg-copper-600 text-white font-semibold transition">
             Browse Menu
           </button>
         </div>
@@ -125,17 +125,17 @@ const MyOrders = () => {
                 </div>
 
                 {/* Footer — payment status */}
-                <div className={`px-5 py-4 flex items-center justify-between border-t ${isPaid ? 'bg-green-50' : 'bg-orange-50'}`}
+                <div className={`px-5 py-4 flex items-center justify-between border-t ${isPaid ? 'bg-green-50' : 'bg-copper-50'}`}
                   style={{ borderColor: 'var(--border-color)' }}>
                   <div>
-                    <p className="text-xs font-bold uppercase" style={{ color: isPaid ? '#16a34a' : '#ea580c' }}>
+                    <p className="text-xs font-bold uppercase" style={{ color: isPaid ? '#16a34a' : '#a8724a' }}>
                       {isPaid ? "✅ Payment Received" : "⏳ Amount to be paid"}
                     </p>
                     <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                       {isPaid ? "Thank you! Enjoy your meal." : order.orderType === "Delivery" ? "Payment pending for delivery" : "Pay at the counter when you collect"}
                     </p>
                   </div>
-                  <p className={`text-2xl font-black ${isPaid ? 'text-green-600' : 'text-orange-500'}`}>
+                  <p className={`text-2xl font-black ${isPaid ? 'text-green-600' : 'text-copper-500'}`}>
                     ₹{order.totalAmount}
                   </p>
                 </div>

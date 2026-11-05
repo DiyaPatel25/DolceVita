@@ -110,7 +110,7 @@ const SpecialOrders = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-[#111827]"></div>
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center text-white px-4 max-w-3xl glass-panel-dark p-8 rounded-2xl">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-wide text-orange-400">Special Event Orders</h1>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-wide text-copper-400">Special Event Orders</h1>
             <p className="text-lg md:text-xl font-light text-gray-300">
               Birthdays, Anniversaries, Corporate Events — Make it unforgettable with Dolce Vita's premium desserts.
             </p>
@@ -124,7 +124,7 @@ const SpecialOrders = () => {
           {/* Order Form (Takes up 2 columns) */}
           <div className="lg:col-span-2 glass-panel p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800" style={{ backgroundColor: 'var(--card-bg)' }}>
             <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-              <Cake className="w-8 h-8 text-orange-500" />
+              <Cake className="w-8 h-8 text-copper-500" />
               Request a Custom Order
             </h2>
 
@@ -147,7 +147,7 @@ const SpecialOrders = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="Your Name"
                 />
               </div>
@@ -160,7 +160,7 @@ const SpecialOrders = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="your@email.com"
                 />
               </div>
@@ -173,7 +173,7 @@ const SpecialOrders = () => {
                   name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="+91..."
                 />
               </div>
@@ -185,7 +185,7 @@ const SpecialOrders = () => {
                   name="eventType"
                   value={formData.eventType}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors appearance-none"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors appearance-none"
                 >
                   <option value="" disabled className="dark:bg-gray-800">Select Event Type</option>
                   <option value="Birthday" className="dark:bg-gray-800">Birthday</option>
@@ -206,7 +206,7 @@ const SpecialOrders = () => {
                   name="eventDate"
                   value={formData.eventDate}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors dark:[color-scheme:dark]"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors dark:[color-scheme:dark]"
                 />
               </div>
 
@@ -220,7 +220,7 @@ const SpecialOrders = () => {
                   name="guests"
                   value={formData.guests}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="e.g. 50"
                   min="1"
                 />
@@ -234,7 +234,7 @@ const SpecialOrders = () => {
                   name="itemsOfInterest"
                   value={formData.itemsOfInterest}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="e.g. 2 Tier Cheesecake, 50 Tubcakes, Assorted Brownies"
                 />
               </div>
@@ -247,7 +247,7 @@ const SpecialOrders = () => {
                   value={formData.message}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-orange-500 transition-colors"
+                  className="w-full px-4 py-3 bg-transparent border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-copper-500 transition-colors"
                   placeholder="Any specific themes, dietary requirements, or special requests..."
                 ></textarea>
               </div>
@@ -256,7 +256,7 @@ const SpecialOrders = () => {
                 <button
                   onClick={handleSubmit}
                   disabled={sending}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold py-4 px-6 rounded-lg transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-orange-500/50 transform hover:-translate-y-1"
+                  className="w-full bg-gradient-to-r from-copper-500 to-copper-600 hover:from-copper-400 hover:to-copper-500 text-white font-bold py-4 px-6 rounded-lg transition duration-300 flex items-center justify-center space-x-2 shadow-lg hover:shadow-copper-500/50 transform hover:-translate-y-1"
                 >
                   <Send className="w-5 h-5" />
                   <span>{sending ? "Processing..." : "Submit Order Request"}</span>
@@ -271,13 +271,13 @@ const SpecialOrders = () => {
           {/* Contact Information Sidebar */}
           <div className="lg:col-span-1 space-y-8">
             <div className="glass-panel p-8 rounded-2xl border border-gray-200 dark:border-gray-800" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <h3 className="text-xl font-bold mb-6 text-orange-500 border-b border-gray-200 dark:border-gray-800 pb-4">
+              <h3 className="text-xl font-bold mb-6 text-copper-500 border-b border-gray-200 dark:border-gray-800 pb-4">
                 Visit Our Stall
               </h3>
               
               <div className="space-y-6">
                 <div className="flex items-start space-x-4 group">
-                  <div className="bg-orange-500/10 p-3 rounded-xl text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <div className="bg-copper-500/10 p-3 rounded-xl text-copper-500 group-hover:bg-copper-500 group-hover:text-white transition-colors">
                     <MapPin className="w-6 h-6" />
                   </div>
                   <div>
@@ -290,7 +290,7 @@ const SpecialOrders = () => {
                 </div>
 
                 <div className="flex items-start space-x-4 group">
-                  <div className="bg-orange-500/10 p-3 rounded-xl text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <div className="bg-copper-500/10 p-3 rounded-xl text-copper-500 group-hover:bg-copper-500 group-hover:text-white transition-colors">
                     <Clock className="w-6 h-6" />
                   </div>
                   <div>
@@ -305,13 +305,13 @@ const SpecialOrders = () => {
             </div>
 
             <div className="glass-panel p-8 rounded-2xl border border-gray-200 dark:border-gray-800" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <h3 className="text-xl font-bold mb-6 text-orange-500 border-b border-gray-200 dark:border-gray-800 pb-4">
+              <h3 className="text-xl font-bold mb-6 text-copper-500 border-b border-gray-200 dark:border-gray-800 pb-4">
                 Direct Contact
               </h3>
               
               <div className="space-y-6">
                 <div className="flex items-start space-x-4 group">
-                  <div className="bg-orange-500/10 p-3 rounded-xl text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <div className="bg-copper-500/10 p-3 rounded-xl text-copper-500 group-hover:bg-copper-500 group-hover:text-white transition-colors">
                     <Phone className="w-6 h-6" />
                   </div>
                   <div>
@@ -322,7 +322,7 @@ const SpecialOrders = () => {
                 </div>
 
                 <div className="flex items-start space-x-4 group">
-                  <div className="bg-orange-500/10 p-3 rounded-xl text-orange-500 group-hover:bg-orange-500 group-hover:text-white transition-colors">
+                  <div className="bg-copper-500/10 p-3 rounded-xl text-copper-500 group-hover:bg-copper-500 group-hover:text-white transition-colors">
                     <Instagram className="w-6 h-6" />
                   </div>
                   <div>
@@ -331,7 +331,7 @@ const SpecialOrders = () => {
                       href="https://www.instagram.com/dolcevita___cakes/"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-500 text-sm hover:text-orange-500 transition-colors"
+                      className="text-gray-500 text-sm hover:text-copper-500 transition-colors"
                     >
                       @dolcevita___cakes
                     </a>

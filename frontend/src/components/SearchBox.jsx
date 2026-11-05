@@ -10,8 +10,8 @@ const SearchBox = ({ value, onChange, placeholder }) => (
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       aria-label={placeholder}
-      className="w-full pl-12 pr-11 py-3 rounded-full border-2 focus:border-yellow-400 focus:outline-none transition-colors shadow-sm [&::-webkit-search-cancel-button]:hidden"
-      style={{ backgroundColor: "var(--card-bg)", borderColor: "var(--border-color)", color: "var(--text-color)" }}
+      className="w-full pl-12 pr-11 py-3 rounded-full border-2 border-[var(--border-color)] focus:border-copper-500 focus:outline-none transition-colors shadow-sm [&::-webkit-search-cancel-button]:hidden"
+      style={{ backgroundColor: "var(--card-bg)", color: "var(--text-color)" }}
     />
     {value && (
       <button

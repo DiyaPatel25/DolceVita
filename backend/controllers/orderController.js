@@ -105,7 +105,13 @@ export const verifyPaymentSignature = async (req, res) => {
 
 export const placeOrder = async (req, res) => {
   try {
-    const { name, guestName, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false, razorpay_order_id } = req.body;
+    const { name, guestName, email, password, address, orderType = "Pickup", paymentMethod = "Pay at Counter", cartItems = [], paymentVerified = false, razorpay_order_id, phone, pickupTime, note } = req.body;
+
+    // Pickup orders need a number the shop can call; Indian mobile, 10 digits, optional +91/0 prefix
+    const cleanPhone = String(phone || "").replace(/\D/g, "").replace(/^(91|0)(?=\d{10}$)/, "");
+    if (!/^[6-9]\d{9}$/.test(cleanPhone)) {
+      return res.status(400).json({ success: false, message: "Enter a 10-digit mobile number so we can reach you about your order." });
+    }
     const lowStockAlerts = [];
     const stockApplied = [];
 
@@ -298,6 +304,9 @@ export const placeOrder = async (req, res) => {
         totalAmount: orderTotalAmount,
         orderType: normalizedOrderType,
         address: finalAddress,
+        phone: cleanPhone,
+        pickupTime: String(pickupTime || "As soon as possible").slice(0, 40),
+        note: String(note || "").trim().slice(0, 200),
         paymentMethod: normalizedPaymentMethod,
         paymentStatus: normalizedPaymentMethod === "Online Payment" ? "Paid" : "Pending",
         status: "Pending",

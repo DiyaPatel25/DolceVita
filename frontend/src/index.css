@@ -1,74 +1,91 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Figtree:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap");
 
 @import "tailwindcss";
 
-* {
-  font-family: "Inter", sans-serif;
-  box-sizing: border-box;
+/* Customer site palette, taken from the printed chalkboard menu. Admin keeps Tailwind's orange. */
+@theme {
+  --font-display: "Cinzel", Georgia, serif;
+  --font-sans: "Figtree", system-ui, sans-serif;
+
+  --color-copper-50: #faf3ec;
+  --color-copper-100: #f2e2d2;
+  --color-copper-200: #e5c6a8;
+  --color-copper-300: #d6a77e;
+  --color-copper-400: #cb9869;
+  --color-copper-500: #c08a5b;
+  --color-copper-600: #a8724a;
+  --color-copper-700: #8a5b3b;
+  --color-copper-800: #6b4630;
+  --color-copper-900: #4f3424;
+
+  --color-chalk: #1f1d1b;
+  --color-slate: #2a2724;
+  --color-cream: #f2e6d6;
+  --color-berry: #e2557a;
 }
 
-/* ─── Light Theme ─── */
+/* ─── Light theme: warm paper ─── */
 :root {
-  --bg-color: #f8fafc;
-  --text-color: #111827;
-  --text-secondary: #6b7280;
+  --bg-color: #fffbf5;
+  --text-color: #2a2522;
+  --text-secondary: #6f6359;
   --card-bg: #ffffff;
-  --border-color: #e5e7eb;
-  --hover-bg: #f9fafb;
-  --error-color: #ef4444;
+  --border-color: #eadfd2;
+  --hover-bg: #f7efe5;
+  --error-color: #c2410c;
+  --accent: #a8724a;
 }
 
-/* ─── Dark Theme ─── */
+/* ─── Dark theme: chalkboard (the default) ─── */
 .dark-theme {
-  --bg-color: #111827;
-  --text-color: #f3f4f6;
-  --text-secondary: #9ca3af;
-  --card-bg: #1f2937;
-  --border-color: #374151;
-  --hover-bg: #374151;
+  --bg-color: #1f1d1b;
+  --text-color: #f2e6d6;
+  --text-secondary: #b8aa98;
+  --card-bg: #2a2724;
+  --border-color: #3d3833;
+  --hover-bg: #34302c;
   --error-color: #f87171;
+  --accent: #cb9869;
 }
 
 body {
+  font-family: var(--font-sans);
   background-color: var(--bg-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
-  /* Prevent horizontal overflow on mobile */
   overflow-x: hidden;
 }
 
-/* ─── Touch-friendly tap targets ─── */
 button, a {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ─── Smooth scrolling ─── */
+/* Keyboard users always see where they are */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
-/* ─── Image fluid by default ─── */
-img {
-  max-width: 100%;
-  height: auto;
+/* In the base layer so utilities like h-full can override it */
+@layer base {
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
-/* ─── Premium Aesthetics & Glassmorphism ─── */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+/* Faint chalk dust, like the printed board */
+.chalkboard {
+  background-color: #1f1d1b;
+  background-image:
+    radial-gradient(ellipse at 20% 0%, rgba(255, 255, 255, 0.05), transparent 55%),
+    radial-gradient(ellipse at 90% 100%, rgba(192, 138, 91, 0.08), transparent 50%);
 }
 
-.glass-panel-dark {
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -78,12 +95,8 @@ img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #f97316; /* Tailwind orange-500 */
+  background: #c08a5b;
   border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ea580c; /* Tailwind orange-600 */
 }
 
 /* Swipeable chip rows: keep scrolling, hide the bar */
@@ -94,11 +107,12 @@ img {
   display: none;
 }
 
-/* Micro-animations */
-.hover-lift {
-  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *, *::before, *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
 }

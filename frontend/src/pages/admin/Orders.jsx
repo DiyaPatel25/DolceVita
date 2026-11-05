@@ -225,6 +225,13 @@ const Orders = () => {
                     <p className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Order #{order._id.slice(-8).toUpperCase()}</p>
                     <p className="font-bold text-gray-800">{order?.guestName || order?.user?.name || "Guest"}</p>
                     <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleString("en-IN")}</p>
+                    {order.phone && (
+                      <p className="text-sm text-gray-700 mt-1">
+                        <a href={`tel:+91${order.phone}`} className="font-semibold text-orange-600 hover:underline">{order.phone}</a>
+                        {order.pickupTime && <span className="text-gray-500"> · Pickup: {order.pickupTime}</span>}
+                      </p>
+                    )}
+                    {order.note && <p className="text-xs text-gray-500 mt-0.5">Note: {order.note}</p>}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-3">

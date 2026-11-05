@@ -1,88 +1,57 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useRef } from "react";
+import { Phone } from "lucide-react";
 import { AppContext } from "../context/AppContext";
+import { STORE, VIDEOS } from "../store";
+import DessertVideo from "./DessertVideo";
 
 const Hero = () => {
   const { navigate } = useContext(AppContext);
-
-  // Typewriter effect states
-  const [displayText, setDisplayText] = useState('');
-  const fullText = 'Welcome to the Dolce Vita Experience';
-
-  // Typewriter effect
-  useEffect(() => {
-    setDisplayText('');
-    let i = 0;
-    const typeInterval = setInterval(() => {
-      if (i < fullText.length) {
-        setDisplayText(fullText.slice(0, i + 1));
-        i++;
-      } else {
-        clearInterval(typeInterval);
-      }
-    }, 80);
-    return () => clearInterval(typeInterval);
-  }, []);
-
-  // Function to render text with orange "Dolce Vita"
-  const renderTypedText = () => {
-    const beforeDolceVita = 'Welcome to the ';
-    const dolceVita = 'Dolce Vita';
-
-    if (displayText.length <= beforeDolceVita.length) {
-      return displayText;
-    } else {
-      const rest = displayText.slice(beforeDolceVita.length);
-      const isDolceVitaPart = rest.slice(0, dolceVita.length);
-      const afterDolceVita = rest.slice(dolceVita.length);
-      
-      return (
-        <>
-          {beforeDolceVita}
-          <span className="text-orange-500 font-extrabold tracking-wider" style={{ textShadow: "0 2px 10px rgba(249,115,22,0.4)" }}>
-            {isDolceVitaPart}
-          </span>
-          {afterDolceVita}
-        </>
-      );
-    }
-  };
+  // Phones get the lighter file; decided once so the video doesn't restart on resize
+  const isWide = useRef(window.matchMedia("(min-width: 768px)").matches);
 
   return (
-    <section
-      className="relative h-[90vh] flex items-center justify-center bg-center bg-cover bg-fixed"
-      style={{
-        backgroundImage: "url('/images/hero-dessert.png')",
-      }}
-    >
-      {/* Premium Overlay Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-[#111827]/90"></div>
+    <section className="relative chalkboard text-cream overflow-hidden">
+      <div className="max-w-6xl mx-auto md:px-4 md:py-14 md:grid md:grid-cols-[1.1fr_0.9fr] md:gap-12 md:items-center min-h-[calc(100svh-4rem)] md:min-h-0">
+        {/* Video: full-bleed behind the text on phones, framed panel on desktop */}
+        <div className="absolute inset-0 md:relative md:inset-auto md:order-2 md:aspect-[4/5] md:rounded-[2rem] md:overflow-hidden md:ring-1 md:ring-copper-500/60 md:shadow-2xl">
+          <DessertVideo
+            src={isWide.current ? VIDEOS.heroLarge : VIDEOS.heroSmall}
+            poster="https://images.unsplash.com/photo-1709195902163-7eee13e78970?w=900&q=70&auto=format&fit=crop"
+            label="Chocolate ganache being poured over a layered cake"
+            eager
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-chalk via-chalk/60 to-chalk/10 md:hidden" />
+        </div>
 
-      {/* Floating abstract decorative element */}
-      <div className="pointer-events-none absolute top-1/4 right-1/4 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="relative z-10 flex flex-col justify-end min-h-[calc(100svh-4rem)] md:min-h-0 px-5 pb-10 pt-32 md:p-0 md:order-1">
+          <h1 className="font-display font-semibold leading-[0.95] tracking-[0.08em] text-[clamp(3rem,11vw,6.5rem)]">
+            DOLCE<br />VITA
+          </h1>
+          <div className="mt-4 flex items-center gap-4 max-w-md">
+            <span className="h-px flex-1 bg-copper-500/70" aria-hidden="true" />
+            <span className="text-copper-300 text-lg">{STORE.tagline}</span>
+            <span className="h-px flex-1 bg-copper-500/70" aria-hidden="true" />
+          </div>
 
-      {/* Content */}
-      <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto glass-panel-dark p-12 rounded-3xl shadow-2xl hover-lift">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight">
-          {renderTypedText()}
-        </h1>
-        <p className="text-lg md:text-2xl mb-8 text-gray-300 font-light leading-relaxed">
-          Indulge in our exquisite cheesecakes, authentic tiramisu, and decadent brownies.<br/>
-          <span className="text-orange-400 font-medium">Crafted with passion, delivered with love.</span>
-        </p>
+          <p className="mt-6 text-lg md:text-xl text-cream/85 max-w-md leading-relaxed">
+            Cheesecakes, brownies, waffles and cake bowls, made fresh at our stall.
+            Order here, pick up when it's ready, and pay at the counter.
+          </p>
 
-        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
-          <button
-            onClick={() => navigate("/menu")}
-            className="cursor-pointer bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-400 hover:to-orange-500 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-[0_0_20px_rgba(249,115,22,0.4)] hover:shadow-[0_0_30px_rgba(249,115,22,0.6)] transform hover:-translate-y-1"
-          >
-            Explore the Menu
-          </button>
-          <button
-            onClick={() => navigate("/special-orders")}
-            className="cursor-pointer glass-panel hover:bg-white/10 text-white font-bold px-8 py-4 rounded-full transition-all duration-300 border border-white/20 transform hover:-translate-y-1"
-          >
-            Special Event Orders
-          </button>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <button
+              onClick={() => navigate("/menu")}
+              className="px-7 py-3.5 rounded-full bg-copper-500 hover:bg-copper-400 text-chalk font-bold text-base transition-colors"
+            >
+              Browse the menu
+            </button>
+            <a
+              href={`tel:+91${STORE.phones[0]}`}
+              className="px-6 py-3.5 rounded-full border border-cream/40 hover:border-cream text-cream font-semibold flex items-center gap-2 transition-colors"
+            >
+              <Phone size={17} /> Call to order
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -46,6 +46,10 @@ const orderSchema=new mongoose.Schema({
       type: String,
       required: true,
     },
+    // Website pickup orders: how to reach the customer and when they'll come
+    phone: String,
+    pickupTime: String,
+    note: String,
       status: {
       type: String,
       enum: ["Pending", "Preparing", "Ready", "Delivered", "Cancelled"],

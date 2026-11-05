@@ -46,7 +46,7 @@ const Signup = () => {
           backgroundColor: 'var(--card-bg)'
         }}
       >
-        <h1 className="text-3xl mt-10 font-medium" style={{ color: 'var(--text-color)' }}>
+        <h1 className="font-display text-3xl mt-10 font-semibold tracking-wide" style={{ color: 'var(--text-color)' }}>
           Register
         </h1>
         <p className="text-sm mt-2 pb-6" style={{ color: 'var(--text-secondary)' }}>
@@ -100,14 +100,14 @@ const Signup = () => {
 
         <button
           type="submit"
-          className="mt-2 w-full h-11 rounded-full text-white bg-orange-500 hover:opacity-90 transition-opacity cursor-pointer"
+          className="mt-2 w-full h-11 rounded-full text-chalk font-bold bg-copper-500 hover:bg-copper-400 transition-opacity cursor-pointer"
         >
           {loading ? "Loading..." : "Register"}
         </button>
 
         <p className="text-sm mt-3 mb-11" style={{ color: 'var(--text-secondary)' }}>
           Already have an account?
-          <Link to={"/login"} className="ml-1" style={{ color: 'var(--primary-color, #f97316)' }}>
+          <Link to={"/login"} className="ml-1" style={{ color: '#c08a5b' }}>
             Login
           </Link>
         </p>

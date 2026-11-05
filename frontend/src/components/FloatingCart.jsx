@@ -1,106 +1,27 @@
-import { useContext, useState } from "react";
-import { AppContext } from "../context/AppContext";
-import { ShoppingCart, X, ChevronUp, ChevronDown } from "lucide-react";
+import { useContext } from "react";
 import { useLocation } from "react-router-dom";
-import toast from "react-hot-toast";
+import { ShoppingBag } from "lucide-react";
+import { AppContext } from "../context/AppContext";
 
+const HIDDEN_ON = ["/cart", "/checkout", "/order-placed", "/admin", "/login", "/signup"];
+
+// Always-visible way back to the order: full-width bar on phones, a pill on larger screens
 const FloatingCart = () => {
-  const { cart, totalPrice, cartCount, navigate, axios, fetchCartData, addToCart } = useContext(AppContext);
-  const [open, setOpen] = useState(false);
-  const location = useLocation();
+  const { totalPrice, cartCount, navigate } = useContext(AppContext);
+  const { pathname } = useLocation();
 
-  // Don't show on cart/checkout/admin pages
-  if (location.pathname.includes("/cart") || location.pathname.includes("/checkout") || location.pathname.includes("/admin")) {
-    return null;
-  }
-
-  if (!cart?.items?.length) return null;
-
-  const removeItem = async (menuId) => {
-    try {
-      await axios.delete(`/api/cart/remove/${menuId}`);
-      fetchCartData();
-    } catch (e) {
-      toast.error("Could not remove item");
-    }
-  };
+  if (!cartCount || HIDDEN_ON.some((p) => pathname.startsWith(p))) return null;
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2">
-      {/* Expanded cart panel */}
-      {open && (
-        <div className="w-[calc(100vw-3rem)] max-w-xs sm:max-w-sm rounded-2xl shadow-2xl border overflow-hidden"
-          style={{ boxShadow: '0 25px 60px rgba(0,0,0,0.18)', backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 text-white"
-            style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
-            <div className="flex items-center gap-2">
-              <ShoppingCart className="w-4 h-4" />
-              <span className="font-bold text-sm">Your Cart ({cartCount} items)</span>
-            </div>
-            <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Items */}
-          <div className="max-h-64 overflow-y-auto divide-y" style={{ borderColor: 'var(--border-color)' }}>
-            {cart.items.map((item) => {
-              const menuItem = item.menuItem;
-              if (!menuItem || typeof menuItem !== "object") return null;
-              return (
-                <div key={item._id || menuItem._id} className="flex items-center gap-3 px-4 py-3">
-                  <img src={menuItem.image} alt={menuItem.name} className="w-12 h-12 rounded-lg object-cover shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-xs truncate" style={{ color: 'var(--text-color)' }}>{menuItem.name}</p>
-                    <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>₹{menuItem.price} × {item.quantity}</p>
-                  </div>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <button
-                      onClick={async () => {
-                        if (item.quantity <= 1) { await removeItem(menuItem._id); }
-                        else { await axios.post("/api/cart/add", { menuId: menuItem._id, quantity: -1 }); fetchCartData(); }
-                      }}
-                      className="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-sm font-bold hover:bg-orange-200 transition"
-                    >−</button>
-                    <span className="text-sm font-bold w-4 text-center" style={{ color: 'var(--text-color)' }}>{item.quantity}</span>
-                    <button
-                      onClick={() => addToCart(menuItem._id)}
-                      className="w-6 h-6 rounded-full bg-orange-500 text-white flex items-center justify-center text-sm font-bold hover:bg-orange-600 transition"
-                    >+</button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Footer */}
-          <div className="px-4 py-3 border-t" style={{ backgroundColor: 'var(--hover-bg)', borderColor: 'var(--border-color)' }}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold" style={{ color: 'var(--text-secondary)' }}>Total</span>
-              <span className="font-black text-orange-500">₹{totalPrice}</span>
-            </div>
-            <button
-              onClick={() => { setOpen(false); navigate("/checkout"); }}
-              className="w-full py-2.5 rounded-xl font-bold text-white text-sm transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
-            >
-              Place Order →
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating bubble */}
+    <div className="fixed inset-x-0 bottom-0 z-40 p-3 sm:inset-x-auto sm:right-6 sm:bottom-6 sm:p-0 pointer-events-none">
       <button
-        onClick={() => setOpen((p) => !p)}
-        className="relative flex items-center gap-2 px-5 py-3.5 rounded-full text-white font-bold shadow-2xl transition-all duration-300 hover:scale-105 active:scale-95"
-        style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 8px 32px rgba(249,115,22,0.5)' }}
+        onClick={() => navigate("/cart")}
+        className="pointer-events-auto w-full sm:w-auto flex items-center gap-3 px-5 py-4 sm:py-3.5 rounded-2xl sm:rounded-full bg-copper-500 hover:bg-copper-400 text-chalk font-bold shadow-2xl transition-colors"
       >
-        <ShoppingCart className="w-5 h-5" />
-        <span className="text-sm">{cartCount} item{cartCount !== 1 ? "s" : ""}</span>
-        <span className="font-black">· ₹{totalPrice}</span>
-        {open ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
+        <ShoppingBag size={20} />
+        <span>{cartCount} {cartCount === 1 ? "item" : "items"}</span>
+        <span className="font-black">₹{totalPrice}</span>
+        <span className="ml-auto sm:ml-3 underline-offset-4">Review order</span>
       </button>
     </div>
   );

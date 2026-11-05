@@ -40,22 +40,15 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden" style={{ backgroundColor: 'var(--bg-color)' }}>
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, #f97316, #ea580c)', filter: 'blur(60px)' }} />
-        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full opacity-15"
-          style={{ background: 'radial-gradient(circle, #7c3aed, #4f46e5)', filter: 'blur(80px)' }} />
-      </div>
 
       <div className="relative w-full max-w-md px-6">
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-lg"
-            style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}>
-            <ChefHat className="w-8 h-8 text-white" />
+            style={{ background: '#c08a5b' }}>
+            <ChefHat className="w-8 h-8 text-chalk" />
           </div>
-          <h1 className="text-3xl font-black" style={{ color: 'var(--text-color)' }}>
+          <h1 className="font-display text-3xl font-semibold tracking-[0.12em]" style={{ color: 'var(--text-color)' }}>
             Dolce Vita
           </h1>
           <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
@@ -121,8 +114,8 @@ const Login = () => {
           <button
             type="submit"
             disabled={loading}
-            className="mt-6 w-full h-12 rounded-xl font-bold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
-            style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+            className="mt-6 w-full h-12 rounded-xl font-bold text-chalk transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed"
+            style={{ background: '#c08a5b' }}
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
@@ -137,11 +130,15 @@ const Login = () => {
 
           <p className="text-center text-sm mt-5" style={{ color: 'var(--text-secondary)' }}>
             Don't have an account?{" "}
-            <Link to="/signup" className="font-semibold hover:underline" style={{ color: '#f97316' }}>
+            <Link to="/signup" className="font-semibold hover:underline" style={{ color: '#c08a5b' }}>
               Sign up
             </Link>
           </p>
         </form>
+        <p className="text-center text-sm mt-6" style={{ color: 'var(--text-secondary)' }}>
+          Just ordering? You don't need an account.{" "}
+          <Link to="/menu" className="font-semibold hover:underline" style={{ color: '#c08a5b' }}>Browse the menu</Link>
+        </p>
       </div>
     </div>
   );

@@ -46,15 +46,18 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center sm:p-4" onClick={onClose}>
       <div
-        className="rounded-3xl max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[90vh]"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Choose extras for ${item.name}`}
+        className="rounded-t-3xl sm:rounded-3xl max-w-2xl w-full shadow-2xl overflow-y-auto max-h-[90vh]"
         style={{ backgroundColor: 'var(--card-bg)' }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b sticky top-0" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
-          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-color)' }}>Customize Your Order</h2>
+          <h2 className="text-2xl font-bold" style={{ color: 'var(--text-color)' }}>Choose extras</h2>
           <button
             onClick={onClose}
             className="p-1 rounded-full transition"
@@ -67,11 +70,11 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
         {/* Content */}
         <div className="p-6 space-y-6">
           {/* Item Image and Info */}
-          <div className="flex items-center justify-between gap-4 bg-gray-50 dark:bg-gray-800/40 p-4 rounded-2xl border border-gray-100 dark:border-gray-800">
+          <div className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-[var(--border-color)]">
             <div className="flex-1 min-w-0 pr-2">
               <h3 className="text-base sm:text-xl font-bold truncate" style={{ color: 'var(--text-color)' }}>{item.name}</h3>
               <p className="text-xs sm:text-sm mt-1 line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{item.description}</p>
-              <p className="text-lg sm:text-2xl font-black text-orange-500 mt-2 sm:mt-3">₹{item.price}</p>
+              <p className="text-lg sm:text-2xl font-black text-copper-500 mt-2 sm:mt-3">₹{item.price}</p>
             </div>
             <img
               src={item.image}
@@ -82,7 +85,7 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
 
           {/* Extra Cream Toggle */}
           {item.customizationOptions?.hasExtraCream && (
-            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-2xl p-4 border border-orange-200">
+            <div className="rounded-2xl p-4 border border-[var(--border-color)]">
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="font-bold" style={{ color: 'var(--text-color)' }}>Extra Cream</h4>
@@ -91,13 +94,13 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-orange-600 font-bold whitespace-nowrap">+₹{extraCreamPrice}</span>
+                  <span className="text-copper-500 font-bold whitespace-nowrap">+₹{extraCreamPrice}</span>
                   <button
                     onClick={() => setExtraCream(!extraCream)}
                     className={`w-6 h-6 rounded-full border-2 transition flex items-center justify-center ${
                       extraCream
-                        ? "bg-orange-600 border-orange-600"
-                        : "border-gray-300 hover:border-orange-600"
+                        ? "bg-copper-500 border-copper-500"
+                        : "border-[var(--text-secondary)] hover:border-copper-500"
                     }`}
                   >
                     {extraCream && <Check className="w-4 h-4 text-white" />}
@@ -109,8 +112,8 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
 
           {/* Toppings */}
           <div>
-            <h4 className="font-bold mb-3" style={{ color: 'var(--text-color)' }}>Choose Toppings</h4>
-            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Select your favorite toppings</p>
+            <h4 className="font-bold mb-3" style={{ color: 'var(--text-color)' }}>Extras</h4>
+            <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>Optional. Pick as many as you like.</p>
             <div className="grid grid-cols-1 gap-2 max-h-80 overflow-y-auto">
               {toppings.map((topping) => (
                 <button
@@ -118,16 +121,16 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                   onClick={() => toggleTopping(topping)}
                   className={`p-3 rounded-xl border-2 transition text-left flex items-center justify-between ${
                     selectedToppings.find((t) => t.name === topping.name)
-                      ? "bg-orange-100 border-orange-600"
-                      : "bg-gray-50 border-gray-300 hover:border-orange-400"
+                      ? "bg-copper-500/15 border-copper-500"
+                      : "border-[var(--border-color)] hover:border-copper-400"
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div
                       className={`w-5 h-5 rounded border-2 flex items-center justify-center transition ${
                         selectedToppings.find((t) => t.name === topping.name)
-                          ? "bg-orange-600 border-orange-600"
-                          : "border-gray-400"
+                          ? "bg-copper-500 border-copper-500"
+                          : "border-[var(--text-secondary)]"
                       }`}
                     >
                       {selectedToppings.find((t) => t.name === topping.name) && (
@@ -136,7 +139,7 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                     </div>
                     <span className="font-semibold" style={{ color: 'var(--text-color)' }}>{topping.name}</span>
                   </div>
-                  <span className="text-orange-600 font-bold whitespace-nowrap">+₹{topping.price}</span>
+                  <span className="text-copper-500 font-bold whitespace-nowrap">+₹{topping.price}</span>
                 </button>
               ))}
             </div>
@@ -148,14 +151,14 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-9 h-9 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center transition"
+                className="w-9 h-9 rounded-full bg-copper-500 text-chalk hover:bg-copper-400 flex items-center justify-center transition"
               >
                 <Minus className="w-4 h-4" />
               </button>
               <span className="font-bold text-lg w-8 text-center" style={{ color: 'var(--text-color)' }}>{quantity}</span>
               <button
                 onClick={() => setQuantity(quantity + 1)}
-                className="w-9 h-9 rounded-full bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center transition"
+                className="w-9 h-9 rounded-full bg-copper-500 text-chalk hover:bg-copper-400 flex items-center justify-center transition"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -163,16 +166,16 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
           </div>
 
           {/* Summary */}
-          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-2xl p-4 border border-orange-200">
+          <div className="rounded-2xl p-4 border border-[var(--border-color)]">
             <div className="space-y-2 text-sm mb-3">
               {extraCream && (
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between" style={{ color: "var(--text-secondary)" }}>
                   <span>Extra Cream (×{quantity})</span>
                   <span>+₹{extraCreamPrice * quantity}</span>
                 </div>
               )}
               {selectedToppings.length > 0 && (
-                <div className="flex justify-between text-gray-700">
+                <div className="flex justify-between" style={{ color: "var(--text-secondary)" }}>
                   <span>{selectedToppings.length} Topping(s) (×{quantity})</span>
                   <span>
                     +₹{selectedToppings.reduce((sum, t) => sum + t.price, 0) * quantity}
@@ -180,9 +183,9 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
                 </div>
               )}
             </div>
-            <div className="flex justify-between items-center pt-3 border-t border-orange-300">
-              <span className="font-bold" style={{ color: 'var(--text-color)' }}>Total:</span>
-              <span className="text-2xl font-black text-orange-600">₹{totalPrice}</span>
+            <div className="flex justify-between items-center pt-3 border-t border-[var(--border-color)]">
+              <span className="font-bold" style={{ color: 'var(--text-color)' }}>Total</span>
+              <span className="text-2xl font-black text-copper-500">₹{totalPrice}</span>
             </div>
           </div>
         </div>
@@ -198,9 +201,9 @@ const CustomizerModal = ({ item, onClose, onAddToCart, isOpen }) => {
           </button>
           <button
             onClick={handleAddToCart}
-            className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold hover:shadow-lg transition"
+            className="flex-1 px-4 py-3 rounded-xl bg-copper-500 hover:bg-copper-400 text-chalk font-bold transition"
           >
-            Add to Cart
+            Add to order
           </button>
         </div>
       </div>

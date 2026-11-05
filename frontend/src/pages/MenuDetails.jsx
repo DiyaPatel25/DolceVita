@@ -1,159 +1,102 @@
-import { useContext } from "react";
-import { useParams } from "react-router-dom";
+import { useContext, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { ArrowLeft, Minus, Plus } from "lucide-react";
 import { AppContext } from "../context/AppContext";
-import { ArrowLeft, CheckCircle, Minus, Plus, ShoppingCart, Trash2, XCircle } from "lucide-react";
+import MenuCard from "../components/MenuCard";
+import CustomizerModal from "../components/CustomizerModal";
+
 const MenuDetails = () => {
   const { id } = useParams();
   const { menus, navigate, addToCart, cart, axios, fetchCartData } = useContext(AppContext);
+  const [showCustomizer, setShowCustomizer] = useState(false);
   const menu = menus.find((item) => item._id === id);
-
-  const cartItem = cart?.items?.find(
-    (item) => item.menuItem?._id === id || item.menuItem === id
-  );
-  const quantity = cartItem?.quantity || 0;
-
-  const removeOne = async () => {
-    if (quantity <= 1) {
-      await axios.delete(`/api/cart/remove/${id}`);
-    } else {
-      await axios.post("/api/cart/add", { menuId: id, quantity: -1 });
-    }
-    fetchCartData();
-  };
-
-  const removeFromCart = async () => {
-    await axios.delete(`/api/cart/remove/${id}`);
-    fetchCartData();
-  };
 
   if (!menu) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--bg-color)' }}>
+      <div className="min-h-[70vh] flex items-center justify-center px-4" style={{ backgroundColor: "var(--bg-color)" }}>
         <div className="text-center">
-          <h2 className="text-3xl font-bold mb-4" style={{ color: 'var(--text-color)' }}>
-            Menu not found
-          </h2>
-          <p className="mb-6" style={{ color: 'var(--text-secondary)' }}>
-            The item you're looking for doesn't exist.
-          </p>
-          <button
-            onClick={() => navigate("/menu")}
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-white rounded-full font-semibold transition-colors"
-          >
-            Back to menu
-          </button>
+          <h1 className="font-display text-3xl font-semibold">{menus.length ? "This dessert isn't on the menu" : "Loading..."}</h1>
+          {menus.length > 0 && (
+            <Link to="/menu" className="mt-6 inline-block px-7 py-3.5 rounded-full bg-copper-500 text-chalk font-bold">Browse the menu</Link>
+          )}
         </div>
       </div>
     );
   }
 
+  const lines = (cart?.items || []).filter((i) => i.menuItem?._id === id || i.menuItem === id);
+  const quantity = lines.reduce((sum, i) => sum + i.quantity, 0);
+  const categoryId = menu.category?._id;
+  const related = menus.filter((m) => m.category?._id === categoryId && m._id !== id).slice(0, 4);
+
+  const add = () => (menu.isCustomizable ? setShowCustomizer(true) : addToCart(menu._id));
+  const removeOne = async () => {
+    const line = lines[lines.length - 1];
+    if (!line) return;
+    await axios.post("/api/cart/add", { menuId: id, quantity: -1, customizations: line.customizations || {} });
+    fetchCartData();
+  };
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--bg-color)' }}>
-      {/* Back Button */}
-      <div className="container mx-auto px-4 py-6">
-        <button
-          onClick={() => navigate("/menu")}
-          className="flex items-center gap-2 hover:text-yellow-500 transition-colors group"
-          style={{ color: 'var(--text-secondary)' }}
-        >
-          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-semibold">Back to menu</span>
+    <div className="min-h-screen pb-24" style={{ backgroundColor: "var(--bg-color)" }}>
+      <div className="max-w-6xl mx-auto px-4 pt-6">
+        <button onClick={() => navigate(-1)} className="inline-flex items-center gap-2 font-semibold hover:text-copper-500" style={{ color: "var(--text-secondary)" }}>
+          <ArrowLeft size={18} /> Back
         </button>
-      </div>
 
-      {/* Main Content */}
+        <div className="mt-6 grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+          <img src={menu.image} alt={menu.name} className="w-full aspect-square md:aspect-[4/5] object-cover rounded-3xl" />
 
-      <div className="container mx-auto px-4 pb-16">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          {/* Image Section */}
-          <div className="relative">
-            <div className="sticky top-8">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-                <img
-                  src={menu.image}
-                  alt={menu.name}
-                  className="w-full h-[400px] object-cover"
-                />
-                {/* Availability Badge */}
-                <div className="absolute top-6 right-6">
-                  <div className="bg-green-500 text-white px-4 py-2 rounded-full flex items-center gap-2 font-semibold shadow-lg">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>Available</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Details Section */}
-          <div className="space-y-6">
-            {/* Title and Price */}
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">
-                {menu.name}
-              </h1>
-              <div className="flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-yellow-500">
-                  ₹{menu.price}
-                </span>
-                <span className="text-gray-500 text-lg">per item</span>
-              </div>
-            </div>
-            {/* Description */}
-            <div className="bg-gray-50 rounded-2xl p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                Description
-              </h3>
-              <p className="text-gray-600 leading-relaxed">
-                {menu.description}
+          <div className="md:pt-6">
+            {menu.category?.name && (
+              <Link to={`/menu?categoryId=${categoryId}&categoryName=${encodeURIComponent(menu.category.name)}`} className="text-copper-500 font-semibold hover:underline">
+                {menu.category.name}
+              </Link>
+            )}
+            <h1 className="mt-2 font-display text-3xl md:text-5xl font-semibold leading-tight tracking-wide">{menu.name}</h1>
+            <p className="mt-4 text-3xl font-black">₹{menu.price}</p>
+            <p className="mt-4 text-lg leading-relaxed" style={{ color: "var(--text-secondary)" }}>{menu.description}</p>
+            {menu.isCustomizable && (
+              <p className="mt-3 text-sm" style={{ color: "var(--text-secondary)" }}>
+                Extras: {(menu.customizationOptions?.toppings || []).map((t) => `${t.name} +₹${t.price}`).join(", ")}
               </p>
-            </div>
-            {/* Cart Controls */}
-            <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 rounded-2xl p-6 shadow-xl">
+            )}
+
+            <div className="mt-8 max-w-sm">
               {quantity === 0 ? (
-                <button
-                  onClick={() => addToCart(menu._id)}
-                  className="cursor-pointer w-full py-4 rounded-xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 bg-white text-yellow-600 hover:bg-gray-50 hover:scale-105 active:scale-95 shadow-lg"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  Add to Cart
+                <button onClick={add} className="w-full py-4 rounded-2xl bg-copper-500 hover:bg-copper-400 text-chalk font-black text-lg transition-colors">
+                  {menu.isCustomizable ? "Choose extras and add" : `Add to order, ₹${menu.price}`}
                 </button>
               ) : (
-                <div className="space-y-4">
-                  <p className="text-center text-white font-semibold">
-                    In cart: {quantity} {quantity === 1 ? "item" : "items"}
-                  </p>
-                  <div className="flex items-center justify-center gap-4">
-                    <button
-                      onClick={removeOne}
-                      className="w-12 h-12 rounded-full bg-white/90 text-yellow-600 hover:bg-white flex items-center justify-center transition-all"
-                    >
-                      <Minus className="w-5 h-5" />
-                    </button>
-                    <span className="text-white text-2xl font-bold w-10 text-center">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => addToCart(menu._id)}
-                      className="w-12 h-12 rounded-full flex items-center justify-center transition-all bg-white text-yellow-600 hover:bg-gray-50 cursor-pointer"
-                    >
-                      <Plus className="w-5 h-5" />
-                    </button>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center rounded-2xl bg-copper-500 text-chalk">
+                    <button onClick={removeOne} className="w-14 h-14 flex items-center justify-center" aria-label="One less"><Minus size={20} /></button>
+                    <span className="w-8 text-center text-xl font-black" aria-live="polite">{quantity}</span>
+                    <button onClick={add} className="w-14 h-14 flex items-center justify-center" aria-label="One more"><Plus size={20} /></button>
                   </div>
-                  <button
-                    onClick={removeFromCart}
-                    className="w-full py-3 rounded-xl font-semibold bg-white/90 text-red-600 hover:bg-white transition-all flex items-center justify-center gap-2"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                    Remove from Cart
-                  </button>
+                  <Link to="/cart" className="font-bold text-copper-500 hover:underline">Review order</Link>
                 </div>
               )}
+              <p className="mt-3 text-sm" style={{ color: "var(--text-secondary)" }}>Pick up at the stall and pay when you collect.</p>
             </div>
           </div>
         </div>
+
+        {related.length > 0 && (
+          <section className="mt-16">
+            <h2 className="font-display text-2xl md:text-3xl font-semibold tracking-wide">More {menu.category.name.toLowerCase()}</h2>
+            <div className="mt-4 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 sm:gap-6">
+              {related.map((m) => <MenuCard key={m._id} menu={m} />)}
+            </div>
+          </section>
+        )}
       </div>
+
+      {showCustomizer && (
+        <CustomizerModal item={menu} isOpen onClose={() => setShowCustomizer(false)} onAddToCart={(mid, qty, c) => addToCart(mid, qty, c)} />
+      )}
     </div>
   );
 };
+
 export default MenuDetails;
