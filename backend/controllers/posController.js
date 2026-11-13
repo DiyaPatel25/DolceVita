@@ -1,7 +1,7 @@
 import DataAccess from "../config/dataAccess.js";
 import { isMongoDBConnected } from "../config/db.js";
 import Order from "../models/orderModel.js";
-import { priceCustomizations, businessDate, businessDayStart, addDays, paidAmounts } from "../utils/orderMath.js";
+import { priceCustomizations, businessDate, businessDayStart, addDays, paidAmounts, paymentForAmounts } from "../utils/orderMath.js";
 
 const orderDB = new DataAccess('Order');
 const menuDB = new DataAccess('Menu');
@@ -97,60 +97,64 @@ const summarize = (bills) => {
   return s;
 };
 
+// Validate requested items and price them from the menu. Returns { lines, discount, total } or { error }.
+const buildLines = async (items, discount) => {
+  if (!Array.isArray(items) || items.length === 0) return { error: "Add at least one item" };
+  const lines = [];
+  for (const item of items) {
+    const quantity = Math.floor(Number(item.quantity));
+    if (!Number.isFinite(quantity) || quantity < 1) return { error: "Invalid quantity" };
+    const menuItem = await menuDB.findById(item.menuItem);
+    if (!menuItem) return { error: "An item in this order no longer exists. Remove it and try again." };
+    lines.push({ menuItem, quantity, customizations: priceCustomizations(menuItem, item.customizations) });
+  }
+  const subtotal = lines.reduce((sum, l) => sum + (Number(l.menuItem.price) + l.customizations.addOnPrice) * l.quantity, 0);
+  const appliedDiscount = Math.min(Math.max(0, Math.round(Number(discount) || 0)), subtotal);
+  return { lines, discount: appliedDiscount, total: subtotal - appliedDiscount };
+};
+
+const toOrderItems = (lines) =>
+  lines.map((l) => ({
+    menuItem: l.menuItem._id,
+    name: l.menuItem.name,
+    price: Number(l.menuItem.price),
+    quantity: l.quantity,
+    customizations: l.customizations,
+  }));
+
+// Same stock rule as website orders: 1 per distinct item, never below 0
+const takeStock = async (lines) => {
+  const seen = new Set();
+  for (const l of lines) {
+    const id = String(l.menuItem._id);
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const nextStock = Math.max(0, Number(l.menuItem.countInStock ?? 20) - 1);
+    await menuDB.findByIdAndUpdate(id, { countInStock: nextStock, isAvailable: nextStock > 0 });
+  }
+};
+
 export const placePosOrder = async (req, res) => {
   try {
     const { items = [], customerName = "", payment = "Pending", discount = 0, onlineAmount } = req.body;
-    if (!Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ success: false, message: "Add at least one item" });
-    }
-    if (!PAYMENT[payment]) {
-      return res.status(400).json({ success: false, message: "Invalid payment type" });
-    }
-
-    const lines = [];
-    for (const item of items) {
-      const quantity = Math.floor(Number(item.quantity));
-      if (!Number.isFinite(quantity) || quantity < 1) {
-        return res.status(400).json({ success: false, message: "Invalid quantity" });
-      }
-      const menuItem = await menuDB.findById(item.menuItem);
-      if (!menuItem) {
-        return res.status(400).json({ success: false, message: "An item in this order no longer exists. Remove it and try again." });
-      }
-      lines.push({ menuItem, quantity, customizations: priceCustomizations(menuItem, item.customizations) });
-    }
-
-    const subtotal = lines.reduce((sum, l) => sum + (Number(l.menuItem.price) + l.customizations.addOnPrice) * l.quantity, 0);
-    const appliedDiscount = Math.min(Math.max(0, Math.round(Number(discount) || 0)), subtotal);
-    const paid = paymentFields(payment, onlineAmount, subtotal - appliedDiscount);
+    const built = await buildLines(items, discount);
+    if (built.error) return res.status(400).json({ success: false, message: built.error });
+    const { lines, discount: appliedDiscount, total } = built;
+    const paid = paymentFields(payment, onlineAmount, total);
     if (typeof paid === "string") return res.status(400).json({ success: false, message: paid });
 
     const order = await orderDB.create({
       guestName: customerName.trim() || null,
-      items: lines.map((l) => ({
-        menuItem: l.menuItem._id,
-        name: l.menuItem.name,
-        price: Number(l.menuItem.price),
-        quantity: l.quantity,
-        customizations: l.customizations,
-      })),
+      items: toOrderItems(lines),
       discount: appliedDiscount,
-      totalAmount: subtotal - appliedDiscount,
+      totalAmount: total,
       orderType: "Pickup",
       address: POS_ADDRESS,
       status: "Pending",
       ...paid,
     });
 
-    // Same stock rule as website orders: 1 per distinct item, never below 0
-    const seen = new Set();
-    for (const l of lines) {
-      const id = String(l.menuItem._id);
-      if (seen.has(id)) continue;
-      seen.add(id);
-      const nextStock = Math.max(0, Number(l.menuItem.countInStock ?? 20) - 1);
-      await menuDB.findByIdAndUpdate(id, { countInStock: nextStock, isAvailable: nextStock > 0 });
-    }
+    await takeStock(lines);
 
     const plain = order.toObject ? order.toObject() : order;
     res.status(201).json({ success: true, message: "Order placed", order: toBill({ ...plain, items: plain.items.map((i) => ({ ...i, menuItem: null })) }) });
@@ -232,5 +236,53 @@ export const updatePosOrder = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Could not update order" });
+  }
+};
+
+// A customer orders more later: add the new items to their existing bill.
+// Unpaid bill: the new items join it and everything is collected at the end.
+// Paid bill: the new items are paid now, and the bill keeps its cash and online parts.
+export const addToPosOrder = async (req, res) => {
+  try {
+    const { items = [], payment = "Cash", discount = 0, onlineAmount } = req.body;
+    const order = await orderDB.findById(req.params.id);
+    if (!order || order.address !== POS_ADDRESS) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+    if (order.status === "Cancelled") {
+      return res.status(400).json({ success: false, message: "This order is cancelled. Start a new order instead." });
+    }
+
+    const built = await buildLines(items, discount);
+    if (built.error) return res.status(400).json({ success: false, message: built.error });
+    const { lines, total } = built;
+
+    let paymentUpdate = PAYMENT.Pending;
+    if (order.paymentStatus === "Paid") {
+      if (payment === "Pending") {
+        return res.status(400).json({ success: false, message: "This bill is already paid. Take payment for the new items now." });
+      }
+      const extra = paymentFields(payment, onlineAmount, total);
+      if (typeof extra === "string") return res.status(400).json({ success: false, message: extra });
+      const before = paidAmounts(order);
+      const now = paidAmounts({ ...extra, totalAmount: total });
+      paymentUpdate = paymentForAmounts({ cash: before.cash + now.cash, online: before.online + now.online });
+    }
+
+    const updated = await orderDB.findByIdAndUpdate(req.params.id, {
+      items: [...order.items, ...toOrderItems(lines)],
+      discount: (order.discount || 0) + built.discount,
+      totalAmount: order.totalAmount + total,
+      // Back in the serving queue, since there is something new to hand over
+      status: "Pending",
+      ...paymentUpdate,
+    });
+    await takeStock(lines);
+
+    const plain = updated.toObject ? updated.toObject() : updated;
+    res.json({ success: true, message: "Items added", added: total, order: toBill({ ...plain, items: plain.items.map((i) => ({ ...i, menuItem: null })) }) });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Could not add items" });
   }
 };

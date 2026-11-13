@@ -2,7 +2,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-hot-toast";
-import { ShoppingBag, ChevronLeft, ChevronRight, Banknote, Smartphone, Clock, CheckCircle2, XCircle, RotateCcw, Plus, RefreshCw, Split } from "lucide-react";
+import { ShoppingBag, ChevronLeft, ChevronRight, Banknote, Smartphone, Clock, CheckCircle2, XCircle, RotateCcw, Plus, RefreshCw, Split, PlusCircle } from "lucide-react";
 
 const rupee = (n) => `₹${Math.round(n || 0).toLocaleString("en-IN")}`;
 const shiftDate = (date, days) => {
@@ -30,7 +30,7 @@ const FILTERS = [
 ];
 
 const PosOrders = () => {
-  const { admin, axios } = useContext(AppContext);
+  const { admin, axios, navigate } = useContext(AppContext);
   const [date, setDate] = useState(null); // null = today (server decides, in India time)
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -307,6 +307,17 @@ const PosOrders = () => {
                           <CheckCircle2 className="w-4 h-4" /> Served
                         </button>
                       )}
+                      <button
+                        disabled={busy}
+                        onClick={() =>
+                          navigate("/admin/take-order", {
+                            state: { addTo: { id: order._id, name: order.customerName, total: order.totalAmount, payment: order.payment } },
+                          })
+                        }
+                        className="px-3 py-2 rounded-lg bg-orange-100 hover:bg-orange-200 text-orange-700 text-sm font-black flex items-center gap-1.5 disabled:opacity-50"
+                      >
+                        <PlusCircle className="w-4 h-4" /> Add items
+                      </button>
                       <button
                         disabled={busy}
                         onClick={() => cancel(order)}

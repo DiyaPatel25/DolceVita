@@ -43,3 +43,11 @@ export const paidAmounts = (order) => {
   }
   return { cash: total, online: 0 };
 };
+
+// Payment fields for a paid bill made of `cash` + `online` parts, e.g. ₹100 cash earlier
+// plus ₹50 UPI for items added later becomes a ₹150 Split bill with ₹50 online.
+export const paymentForAmounts = ({ cash, online }) => {
+  if (online <= 0) return { paymentMethod: "Cash", paymentStatus: "Paid" };
+  if (cash <= 0) return { paymentMethod: "Online Payment", paymentStatus: "Paid" };
+  return { paymentMethod: "Split", paymentStatus: "Paid", onlineAmount: online };
+};

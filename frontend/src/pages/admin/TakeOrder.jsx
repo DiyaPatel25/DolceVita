@@ -1,8 +1,9 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AppContext } from "../../context/AppContext";
-import { Plus, Minus, Search, ShoppingBag, User, X, Banknote, Smartphone, Clock, CheckCircle2, Trash2, Split } from "lucide-react";
+import { Plus, Minus, Search, ShoppingBag, User, X, Banknote, Smartphone, Clock, CheckCircle2, Trash2, Split, PlusCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import CustomizerModal from "../../components/CustomizerModal";
+import { useLocation } from "react-router-dom";
 
 const DRAFT_KEY = "pos-draft";
 const rupee = (n) => `₹${Math.round(n).toLocaleString("en-IN")}`;
@@ -33,7 +34,7 @@ const loadDraft = () => {
 };
 
 const TakeOrder = () => {
-  const { allMenus: menus, allCategories: categories, axios, fetchMenus } = useContext(AppContext);
+  const { allMenus: menus, allCategories: categories, axios, fetchMenus, navigate } = useContext(AppContext);
   const draft = useMemo(loadDraft, []);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
@@ -48,6 +49,13 @@ const TakeOrder = () => {
   const [customizing, setCustomizing] = useState(null);
   const [billOpen, setBillOpen] = useState(false);
   const [lastOrder, setLastOrder] = useState(null);
+  // Set when "Add items" was tapped on an existing bill in Counter Orders: { id, name, total, payment }
+  const location = useLocation();
+  const [addTo, setAddTo] = useState(location.state?.addTo || null);
+  const stopAdding = () => {
+    setAddTo(null);
+    navigate("/admin/take-order", { replace: true, state: null });
+  };
 
   // Keep the bill if the page is left by accident
   useEffect(() => {
@@ -82,12 +90,13 @@ const TakeOrder = () => {
   const discount = Math.min(subtotal, Math.max(0, Math.round(discountMode === "%" ? (subtotal * rawDiscount) / 100 : rawDiscount)));
   const total = subtotal - discount;
   // Split: part paid by UPI, the rest in cash; change is worked out on the cash part only
-  const online = payment === "Split" ? Math.round(Number(onlinePart) || 0) : 0;
-  const splitInvalid = payment === "Split" && (online <= 0 || online >= total);
+  const pay = addTo?.payment === "Pending" ? "Pending" : payment;
+  const online = pay === "Split" ? Math.round(Number(onlinePart) || 0) : 0;
+  const splitInvalid = pay === "Split" && (online <= 0 || online >= total);
   const cashDue = total - online;
   const received = Number(cashReceived) || 0;
   const change = received - cashDue;
-  const cashShort = (payment === "Cash" || payment === "Split") && cashReceived !== "" && change < 0;
+  const cashShort = (pay === "Cash" || pay === "Split") && cashReceived !== "" && change < 0;
 
   const addLine = (menuId, quantity = 1, customizations = {}) => {
     const menuItem = menus.find((m) => m._id === menuId);
@@ -117,18 +126,22 @@ const TakeOrder = () => {
     if (!lines.length || placing || cashShort || splitInvalid) return;
     try {
       setPlacing(true);
-      const { data } = await axios.post("/api/order/pos", {
+      const { data } = await axios.post(addTo ? `/api/order/pos/${addTo.id}/items` : "/api/order/pos", {
         items: lines.map((l) => ({ menuItem: l.menuItem._id, quantity: l.quantity, customizations: l.customizations })),
         customerName,
-        payment,
+        payment: pay,
         onlineAmount: online || undefined,
         discount,
       });
       if (!data.success) return toast.error(data.message || "Could not place order");
+      const paidCashNow = pay === "Cash" || pay === "Split";
       setLastOrder({
         ...data.order,
-        received: cashReceived !== "" && (payment === "Cash" || payment === "Split") ? received : null,
+        added: addTo ? data.added : null,
+        cashNow: paidCashNow ? cashDue : 0, // change is worked out on cash taken now, not on earlier payments
+        received: cashReceived !== "" && paidCashNow ? received : null,
       });
+      if (addTo) stopAdding();
       resetBill();
       setBillOpen(true);
       fetchMenus(); // stock changed
@@ -158,11 +171,27 @@ const TakeOrder = () => {
         </div>
       </div>
 
+      {addTo && (
+        <div className="mx-4 mt-3 rounded-xl bg-orange-50 border border-orange-200 px-3 py-2.5 flex items-start gap-2">
+          <PlusCircle className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0 text-sm">
+            <p className="font-black text-orange-800">Adding to #{addTo.id.slice(-5).toUpperCase()} · {addTo.name}</p>
+            <p className="text-orange-700">
+              Bill so far {rupee(addTo.total)}, {addTo.payment === "Pending" ? "not paid yet. New items go on the same bill." : "already paid. Take payment for the new items."}
+            </p>
+          </div>
+          <button onClick={stopAdding} className="text-xs font-bold text-orange-700 hover:underline shrink-0">Cancel</button>
+        </div>
+      )}
+
       {lastOrder && lines.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
           <CheckCircle2 className="w-16 h-16 text-green-500 mb-3" />
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Order #{String(lastOrder._id).slice(-5).toUpperCase()} placed</p>
-          <p className="text-4xl font-black text-gray-800 mt-1">{rupee(lastOrder.totalAmount)}</p>
+          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            {lastOrder.added !== null ? `Added to #${String(lastOrder._id).slice(-5).toUpperCase()}` : `Order #${String(lastOrder._id).slice(-5).toUpperCase()} placed`}
+          </p>
+          <p className="text-4xl font-black text-gray-800 mt-1">{rupee(lastOrder.added ?? lastOrder.totalAmount)}</p>
+          {lastOrder.added !== null && <p className="text-sm font-bold text-gray-600">New bill total {rupee(lastOrder.totalAmount)}</p>}
           <p className="text-sm font-semibold text-gray-500 mt-1">
             {lastOrder.payment === "Pending"
               ? "To be paid later"
@@ -174,10 +203,10 @@ const TakeOrder = () => {
           {lastOrder.received !== null && (
             <div className="mt-5 w-full max-w-xs rounded-2xl bg-green-50 border border-green-200 p-4">
               <p className="text-sm text-green-800">
-                Received {rupee(lastOrder.received)} − {lastOrder.payment === "Split" ? "Cash part" : "Bill"} {rupee(lastOrder.cash)}
+                Received {rupee(lastOrder.received)} − Cash to take {rupee(lastOrder.cashNow)}
               </p>
               <p className="text-xs font-bold text-green-700 uppercase tracking-wider mt-2">Give back</p>
-              <p className="text-4xl font-black text-green-700">{rupee(lastOrder.received - lastOrder.cash)}</p>
+              <p className="text-4xl font-black text-green-700">{rupee(lastOrder.received - lastOrder.cashNow)}</p>
             </div>
           )}
           <button onClick={() => { setLastOrder(null); setBillOpen(false); }} className="mt-6 px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl">
@@ -220,7 +249,7 @@ const TakeOrder = () => {
           </div>
 
           <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-3">
-            <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-200 rounded-xl focus-within:border-orange-400">
+            {!addTo && <div className="flex items-center gap-2 bg-white px-3 py-2 border border-gray-200 rounded-xl focus-within:border-orange-400">
               <User className="w-4 h-4 text-gray-400 shrink-0" />
               <input
                 type="text"
@@ -229,7 +258,7 @@ const TakeOrder = () => {
                 onChange={(e) => setCustomerName(e.target.value)}
                 className="bg-transparent outline-none flex-1 text-sm font-semibold text-gray-800 placeholder:font-normal placeholder:text-gray-400"
               />
-            </div>
+            </div>}
 
             {/* The math, line by line */}
             <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-1.5 text-sm tabular-nums">
@@ -265,8 +294,13 @@ const TakeOrder = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-4 gap-1.5">
-              {PAYMENTS.map(({ id, label, icon, active }) => {
+            {pay === "Pending" && addTo ? (
+              <p className="text-sm font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+                Added to the unpaid bill. Collect the full amount from Counter Orders when they pay.
+              </p>
+            ) : (
+            <div className={`grid ${addTo ? "grid-cols-3" : "grid-cols-4"} gap-1.5`}>
+              {PAYMENTS.filter((p) => !(addTo && p.id === "Pending")).map(({ id, label, icon, active }) => {
                 const Icon = icon;
                 return (
                 <button
@@ -279,8 +313,9 @@ const TakeOrder = () => {
                 );
               })}
             </div>
+            )}
 
-            {payment === "Split" && (
+            {pay === "Split" && (
               <div className="bg-white rounded-xl border border-purple-200 p-3 space-y-2 tabular-nums">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-gray-600">Paid by UPI</span>
@@ -303,7 +338,7 @@ const TakeOrder = () => {
               </div>
             )}
 
-            {(payment === "Cash" || (payment === "Split" && !splitInvalid)) && (
+            {(pay === "Cash" || (pay === "Split" && !splitInvalid)) && (
               <div className="bg-white rounded-xl border border-gray-200 p-3 space-y-2">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-sm font-bold text-gray-600">Cash received</span>
@@ -340,7 +375,7 @@ const TakeOrder = () => {
               disabled={placing || cashShort || splitInvalid}
               className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-black text-lg disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.99] transition"
             >
-              {placing ? "Placing..." : splitInvalid ? "Enter the UPI amount" : cashShort ? "Cash is short" : `Place order · ${rupee(total)}`}
+              {placing ? "Placing..." : splitInvalid ? "Enter the UPI amount" : cashShort ? "Cash is short" : addTo ? `Add to #${addTo.id.slice(-5).toUpperCase()} · ${rupee(total)}` : `Place order · ${rupee(total)}`}
             </button>
           </div>
         </>
